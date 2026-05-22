@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MOON LIST — Cinema Vault</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,900;1,9..40,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css?v=moon-ui-v2">
+</head>
+<body>
+
+  <div class="orb orb-a" aria-hidden="true"></div>
+  <div class="orb orb-b" aria-hidden="true"></div>
+  <div class="orb orb-c" aria-hidden="true"></div>
+  <div class="noise" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="header-inner">
+
+      <div class="hero">
+        <div class="hero-text">
+          <p class="eyebrow">✦ Personal Cinema Vault</p>
+          <h1>🎬MOON Movie Flix</h1>
+          <p class="tagline">Movies&nbsp;&bull;&nbsp;Series&nbsp;&bull;&nbsp;Anime&nbsp;&bull;&nbsp;Hidden Picks</p>
+        </div>
+        <div class="hero-right">
+          <span class="badge" id="badge">— titles</span>
+          <div class="hero-btns">
+            <button class="admin-btn" id="adminBtn" onclick="toggleAdmin()">&#128274; Admin</button>
+            <button class="section-mgr-btn" id="sectionMgrBtn" onclick="openSectionMgr()" style="display:none" title="Manage Sections">⚙ Sections</button>
+            <button class="add-btn" onclick="openModal()"><span>&#65291;</span> Add Title</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="search-wrap">
+          <span class="search-icon" aria-hidden="true">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </span>
+          <input type="text" id="search" placeholder="Search movies, shows, anime..." autocomplete="off" spellcheck="false">
+        </div>
+        <div class="filter-tabs">
+          <button class="fb active" data-f="all">All</button>
+          <button class="fb" data-f="link">Links</button>
+          <button class="fb" data-f="nolink">No Link</button>
+        </div>
+      </div>
+
+      <div class="section-bar" id="sectionBar"></div>
+
+    </div>
+  </header>
+
+  <main>
+    <section class="stats-grid">
+      <div class="stat-card"><span class="stat-num" id="total">0</span><span class="stat-label">Total</span></div>
+      <div class="stat-card"><span class="stat-num" id="shown">0</span><span class="stat-label">Showing</span></div>
+      <div class="stat-card"><span class="stat-num" id="movieCount">0</span><span class="stat-label">Movies</span></div>
+      <div class="stat-card"><span class="stat-num" id="seriesCount">0</span><span class="stat-label">Series</span></div>
+      <div class="stat-card"><span class="stat-num" id="animeCount">0</span><span class="stat-label">Anime</span></div>
+      <div class="stat-card"><span class="stat-num" id="links">0</span><span class="stat-label">Links</span></div>
+    </section>
+
+    <div id="loading" class="state-msg"><span class="state-icon">&#127916;</span><span>Loading vault...</span></div>
+    <div id="noRes" class="state-msg" style="display:none"><span class="state-icon">&#127917;</span><span>No title found</span></div>
+    <div class="movie-list" id="list"></div>
+  </main>
+
+  <!-- ── Add/Edit Movie Modal ── -->
+  <div class="ov" id="ov">
+    <div class="modal">
+      <input type="hidden" id="editId">
+      <div class="modal-header">
+        <h2 id="modalTitle">Add New Title</h2>
+        <button class="modal-close" onclick="closeModal()">&#10005;</button>
+      </div>
+      <div class="field">
+        <label for="newName">Movie / Show Name <span class="req">*</span></label>
+        <input type="text" id="newName" placeholder="e.g. Interstellar, Attack on Titan...">
+      </div>
+      <div class="field">
+        <label for="newUrl">Primary Link <span class="opt">optional</span></label>
+        <input type="text" id="newUrl" placeholder="https://...">
+      </div>
+      <div class="field">
+        <label for="newSection">Section</label>
+        <select id="newSection"></select>
+      </div>
+      <div class="modal-actions">
+        <button class="save-btn" id="saveBtn" onclick="saveMovie()">Add to List</button>
+        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Links Manager Modal (admin) ── -->
+  <div class="ov" id="linksMgrOv">
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <h2 id="linksMgrTitle">Manage Links</h2>
+        <button class="modal-close" onclick="closeLinksMgr()">&#10005;</button>
+      </div>
+
+      <div class="lmgr-existing">
+        <p class="lmgr-section-label">Current Links</p>
+        <div id="linksMgrList"></div>
+      </div>
+
+      <div class="lmgr-add">
+        <p class="lmgr-section-label">Add New Link</p>
+        <div class="lmgr-inputs">
+          <input type="text" id="newLinkLabel" placeholder='Label e.g. "480p", "Hindi", "1080p"' style="flex:1;min-width:120px">
+          <input type="text" id="newLinkUrl"   placeholder="https://..." style="flex:2;min-width:200px">
+          <button class="save-btn lmgr-add-btn" id="addLinkBtn" onclick="addLink()">+ Add Link</button>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="cancel-btn" onclick="closeLinksMgr()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Section Manager Modal (admin) ── -->
+  <div class="ov" id="sectionMgrOv">
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <h2>⚙ Manage Sections</h2>
+        <button class="modal-close" onclick="closeSectionMgr()">&#10005;</button>
+      </div>
+
+      <div class="lmgr-existing">
+        <p class="lmgr-section-label">Current Sections</p>
+        <div id="sectionMgrList"></div>
+      </div>
+
+      <div class="lmgr-add">
+        <p class="lmgr-section-label">Add New Section</p>
+        <div class="lmgr-inputs">
+          <input type="text" id="newSectionName" placeholder='e.g. "Thriller", "Sci-Fi", "Tamil"' style="flex:1">
+          <button class="save-btn lmgr-add-btn" id="addSectionBtn" onclick="addSection()">+ Add Section</button>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="cancel-btn" onclick="closeSectionMgr()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./config.js?v=moon-ui-v2"></script>
+  <script src="./app.js?v=moon-ui-v2"></script>
+</body>
+</html>
