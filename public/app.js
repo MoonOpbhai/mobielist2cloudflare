@@ -5,9 +5,9 @@ const SUPABASE_URL      = cfg.SUPABASE_URL      || 'PASTE_SUPABASE_URL_HERE';
 const SUPABASE_ANON_KEY = cfg.SUPABASE_ANON_KEY || 'PASTE_SUPABASE_ANON_KEY_HERE';
 
 let db            = null;
-let all           = [];
-let allLinks      = {};
-let allSections   = [];
+let all           = [];      // movies
+let allLinks      = {};      // { movie_id: [link, ...] }
+let allSections   = [];      // sections from DB
 let filt          = 'all';
 let sectionFilt   = 'all';
 let adminPassword = sessionStorage.getItem('movie_admin_password') || '';
@@ -76,17 +76,12 @@ function updateAdminButton() {
   if (!btn) return;
   btn.textContent = isAdmin ? '🔓 Admin On' : '🔒 Admin';
   btn.classList.toggle('admin-on', isAdmin);
+  // show/hide section manager button
   const smBtn = document.getElementById('sectionMgrBtn');
   if (smBtn) smBtn.style.display = isAdmin ? 'inline-flex' : 'none';
-  // BG button — sirf admin ke liye
-  const bgBtn = document.getElementById('bgToggleBtn');
-  if (bgBtn) {
-    bgBtn.style.display = isAdmin ? 'flex' : 'none';
-  }
-  if (!isAdmin) {
-    const p = document.getElementById('bgCustomizer');
-    if (p) p.classList.remove('open');
-  }
+  const bgBtn = document.getElementById('bgBtn');
+  if (bgBtn) bgBtn.style.display = isAdmin ? 'flex' : 'none';
+  if (!isAdmin) { const p = document.getElementById('bgPanel'); if(p) p.style.display='none'; }
 }
 
 function toggleAdmin() {
@@ -181,6 +176,8 @@ function renderSectionMgrList() {
 function startEditSection(id, currentName) {
   const nameEl = document.getElementById(`smgr-name-${id}`);
   if (!nameEl) return;
+
+  // Replace span with input inline
   nameEl.outerHTML = `
     <input class="smgr-name-input" id="smgr-input-${id}"
       value="${esc(currentName)}" data-old="${esc(currentName)}"
@@ -202,6 +199,7 @@ function handleSectionEditKey(e, id) {
 }
 
 function cancelEditSection(id, oldName) {
+  // Only restore if input still exists (not already saved)
   const inp = document.getElementById(`smgr-input-${id}`);
   if (!inp) return;
   renderSectionMgrList();
@@ -214,13 +212,17 @@ async function saveEditSection(id) {
   const oldName = inp.dataset.old;
   if (!newName) { inp.style.borderColor = 'var(--red)'; return; }
   if (newName === oldName) { renderSectionMgrList(); return; }
+
   inp.disabled = true;
+
   try {
     const { data, error } = await db.rpc('admin_rename_section', {
       p_old_name: oldName, p_new_name: newName, p_password: adminPassword
     });
     if (error) throw error;
     if (!data) throw new Error('Rename failed');
+
+    // Update local state
     allSections = allSections.map(s => s.id === id ? { ...s, name: newName } : s);
     all = all.map(m => m.section === oldName ? { ...m, section: newName } : m);
     renderSectionMgrList();
@@ -237,10 +239,16 @@ async function saveEditSection(id) {
 async function moveSection(index, dir) {
   const newIndex = index + dir;
   if (newIndex < 0 || newIndex >= allSections.length) return;
+
+  // Swap in local array
   const arr = [...allSections];
   [arr[index], arr[newIndex]] = [arr[newIndex], arr[index]];
+
+  // Update sort_order for all (just reassign 1,2,3...)
   const updates = arr.map((s, i) => ({ id: s.id, sort_order: i + 1 }));
+
   try {
+    // Update each section's sort_order via admin RPC
     const { error } = await db.rpc('admin_reorder_sections', {
       p_ids:    updates.map(u => u.id),
       p_orders: updates.map(u => u.sort_order),
@@ -347,6 +355,7 @@ function render() {
     const section = m.section || 'Movies';
     const delay   = Math.min(idx * 0.016, 0.32);
 
+    // Links: movie_links first, then fallback to url column
     const links = allLinks[m.id] || [];
     let linksHtml = '';
     if (links.length > 0) {
@@ -603,129 +612,45 @@ document.addEventListener('keydown', e => {
 document.getElementById('newName').addEventListener('keydown', e => { if (e.key === 'Enter') saveMovie(); });
 document.getElementById('newUrl').addEventListener('keydown',  e => { if (e.key === 'Enter') saveMovie(); });
 
-/* ═══════════════════════════════════════════════
-   BACKGROUND CUSTOMIZER — JS
-   BG button page load pe hidden rehta hai
-   Sirf admin login ke baad dikhta hai
-═══════════════════════════════════════════════ */
-
-const BGC_KEY = 'moonlist_modal_bg';
-
-function _bgcSave(data) {
-  try { localStorage.setItem(BGC_KEY, JSON.stringify(data)); } catch(e) {}
-}
-function _bgcLoad() {
-  try { return JSON.parse(localStorage.getItem(BGC_KEY) || 'null'); } catch(e) { return null; }
-}
-
-function _bgcApply(data) {
-  if (!data) return;
-  const r = document.documentElement;
-  const modals = document.querySelectorAll('.modal');
-  const overlays = document.querySelectorAll('.ov');
-
-  if (data.type === 'color') {
-    r.style.setProperty('--modal-surface', data.value);
-    r.style.setProperty('--modal-custom-bg', 'none');
-    modals.forEach(m => m.classList.remove('has-custom-bg'));
-    overlays.forEach(o => o.classList.remove('has-custom-bg'));
-  } else if (data.type === 'gradient') {
-    r.style.setProperty('--modal-custom-bg', data.value);
-    modals.forEach(m => m.classList.add('has-custom-bg'));
-    overlays.forEach(o => o.classList.add('has-custom-bg'));
-  } else if (data.type === 'image') {
-    r.style.setProperty('--modal-custom-bg', 'url("' + data.value + '")');
-    modals.forEach(m => m.classList.add('has-custom-bg'));
-    overlays.forEach(o => o.classList.add('has-custom-bg'));
-  }
-
-  if (data.overlay !== undefined) {
-    const alpha = (data.overlay / 100).toFixed(2);
-    r.style.setProperty('--modal-surface', 'rgba(12,12,18,' + alpha + ')');
-    const sl = document.getElementById('overlaySlider');
-    const vl = document.getElementById('overlayVal');
-    if (sl) sl.value = data.overlay;
-    if (vl) vl.textContent = data.overlay + '%';
-  }
-}
-
-function applyBgColor(hex) {
-  const data = { type: 'color', value: hex, overlay: _getCurrentOverlay() };
-  _bgcApply(data);
-  _bgcSave(data);
-  _markActive(hex);
-}
-
-function applyBgGradient(grad) {
-  const data = { type: 'gradient', value: grad, overlay: _getCurrentOverlay() };
-  _bgcApply(data);
-  _bgcSave(data);
-  _markActive(grad);
+/* ── BG Image ── */
+function toggleBgPanel() {
+  const p = document.getElementById('bgPanel');
+  p.style.display = p.style.display === 'block' ? 'none' : 'block';
 }
 
 function applyBgImage() {
-  const url = document.getElementById('bgImgUrl').value.trim();
+  const url = document.getElementById('bgUrlInput').value.trim();
   if (!url) return;
-  const data = { type: 'image', value: url, overlay: _getCurrentOverlay() };
-  document.documentElement.style.setProperty('--modal-custom-bg', 'url("' + url + '")');
-  document.querySelectorAll('.modal').forEach(m => m.classList.add('has-custom-bg'));
-  document.querySelectorAll('.ov').forEach(o => o.classList.add('has-custom-bg'));
-  _bgcSave(data);
-}
-
-function updateOverlay(val) {
-  const alpha = (val / 100).toFixed(2);
-  document.documentElement.style.setProperty('--modal-surface', 'rgba(12,12,18,' + alpha + ')');
-  const vl = document.getElementById('overlayVal');
-  if (vl) vl.textContent = val + '%';
-  const saved = _bgcLoad();
-  if (saved) { saved.overlay = parseInt(val); _bgcSave(saved); }
-}
-
-function resetBg() {
-  localStorage.removeItem(BGC_KEY);
-  document.documentElement.style.removeProperty('--modal-surface');
-  document.documentElement.style.removeProperty('--modal-custom-bg');
-  document.querySelectorAll('.modal').forEach(m => m.classList.remove('has-custom-bg'));
-  document.querySelectorAll('.ov').forEach(o => o.classList.remove('has-custom-bg'));
-  document.querySelectorAll('.bgc-preset, .bgc-grad').forEach(el => el.classList.remove('active'));
-  const sl = document.getElementById('overlaySlider');
-  const vl = document.getElementById('overlayVal');
-  if (sl) sl.value = 82;
-  if (vl) vl.textContent = '82%';
-  const inp = document.getElementById('bgImgUrl');
-  if (inp) inp.value = '';
-}
-
-function _getCurrentOverlay() {
-  const sl = document.getElementById('overlaySlider');
-  return sl ? parseInt(sl.value) : 82;
-}
-
-function _markActive(val) {
-  document.querySelectorAll('.bgc-preset, .bgc-grad').forEach(el => {
-    const oc = el.getAttribute('onclick') || '';
-    el.classList.toggle('active', oc.includes(val.replace(/'/g, '')));
+  document.querySelectorAll('.modal').forEach(m => {
+    m.style.backgroundImage = 'url("' + url + '")';
+    m.style.backgroundSize = 'cover';
+    m.style.backgroundPosition = 'center';
   });
+  try { localStorage.setItem('modal_bg', url); } catch(e) {}
+  document.getElementById('bgPanel').style.display = 'none';
 }
 
-function toggleBgCustomizer() {
-  const panel = document.getElementById('bgCustomizer');
-  if (panel) panel.classList.toggle('open');
+function removeBgImage() {
+  document.querySelectorAll('.modal').forEach(m => {
+    m.style.backgroundImage = '';
+  });
+  try { localStorage.removeItem('modal_bg'); } catch(e) {}
+  document.getElementById('bgUrlInput').value = '';
 }
 
-function closeBgCustomizer() {
-  const panel = document.getElementById('bgCustomizer');
-  if (panel) panel.classList.remove('open');
-}
-
-// Page load pe: saved bg apply karo, BG button hide rakho
+// Page load pe saved bg apply karo
 (function() {
-  // BG button hidden by default — updateAdminButton() dikhayega
-  const bgBtn = document.getElementById('bgToggleBtn');
+  try {
+    const saved = localStorage.getItem('modal_bg');
+    if (saved) {
+      document.querySelectorAll('.modal').forEach(m => {
+        m.style.backgroundImage = 'url("' + saved + '")';
+        m.style.backgroundSize = 'cover';
+        m.style.backgroundPosition = 'center';
+      });
+      document.getElementById('bgUrlInput').value = saved;
+    }
+  } catch(e) {}
+  const bgBtn = document.getElementById('bgBtn');
   if (bgBtn) bgBtn.style.display = 'none';
-
-  // Saved background apply karo (button dikhaye bina)
-  const saved = _bgcLoad();
-  if (saved) _bgcApply(saved);
 })();
