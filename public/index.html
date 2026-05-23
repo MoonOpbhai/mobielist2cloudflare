@@ -151,52 +151,18 @@
 
   <div id="toast"></div>
 
-  <!-- ── Background Customizer Panel (Admin only) ── -->
-  <div class="bg-customizer" id="bgCustomizer">
-    <div class="bgc-title">
-      🎨 Modal Background
-      <button class="bgc-close" onclick="closeBgCustomizer()">✕</button>
-    </div>
+  <!-- BG Image (Admin only) -->
+  <button id="bgBtn" onclick="toggleBgPanel()" style="display:none;position:fixed;bottom:20px;right:16px;z-index:299;background:var(--accent);border:none;border-radius:12px;padding:10px 16px;color:#000;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 4px 20px rgba(245,200,75,0.35);">🖼️ Modal BG</button>
 
-    <div class="bgc-label">Solid Colors</div>
-    <div class="bgc-presets">
-      <div class="bgc-preset" style="background:#000000" title="Pure Black" onclick="applyBgColor('#000000')"></div>
-      <div class="bgc-preset" style="background:#0a0a0f" title="Deep Dark" onclick="applyBgColor('#0a0a0f')"></div>
-      <div class="bgc-preset" style="background:#0d1117" title="GitHub Dark" onclick="applyBgColor('#0d1117')"></div>
-      <div class="bgc-preset" style="background:#1a0a2e" title="Deep Purple" onclick="applyBgColor('#1a0a2e')"></div>
-      <div class="bgc-preset" style="background:#0a1628" title="Deep Navy" onclick="applyBgColor('#0a1628')"></div>
-      <div class="bgc-preset" style="background:#1c1410" title="Warm Dark" onclick="applyBgColor('#1c1410')"></div>
-      <div class="bgc-preset" style="background:#0d1a0d" title="Forest Dark" onclick="applyBgColor('#0d1a0d')"></div>
-      <div class="bgc-preset" style="background:#1a0a0a" title="Blood Dark" onclick="applyBgColor('#1a0a0a')"></div>
+  <div id="bgPanel" style="display:none;position:fixed;bottom:65px;right:16px;z-index:300;background:rgba(12,12,18,0.97);border:1px solid rgba(255,255,255,0.13);border-radius:16px;padding:16px;width:280px;box-shadow:0 16px 48px rgba(0,0,0,0.8);backdrop-filter:blur(20px);">
+    <p style="color:var(--accent);font-weight:700;font-size:13px;margin-bottom:12px;">🖼️ Modal Background Image</p>
+    <input id="bgUrlInput" type="url" placeholder="Image URL daalo (https://...)" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;color:#fff;font-size:12px;margin-bottom:8px;box-sizing:border-box;">
+    <p style="color:rgba(255,255,255,0.4);font-size:11px;margin-bottom:10px;">Ya repo mein image daalo aur /image.jpg likho</p>
+    <div style="display:flex;gap:8px;">
+      <button onclick="applyBgImage()" style="flex:1;background:var(--accent);border:none;border-radius:8px;padding:8px;color:#000;font-weight:700;font-size:12px;cursor:pointer;">Apply</button>
+      <button onclick="removeBgImage()" style="flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px;color:#fff;font-size:12px;cursor:pointer;">Remove</button>
     </div>
-
-    <div class="bgc-label">Gradients</div>
-    <div class="bgc-presets">
-      <div class="bgc-grad" style="background:linear-gradient(135deg,#0a0a0f,#1a0a2e)" onclick="applyBgGradient('linear-gradient(135deg,#0a0a0f,#1a0a2e)')"></div>
-      <div class="bgc-grad" style="background:linear-gradient(135deg,#000,#1a2a1a)" onclick="applyBgGradient('linear-gradient(135deg,#000,#1a2a1a)')"></div>
-      <div class="bgc-grad" style="background:linear-gradient(135deg,#0a0a0f,#2a1a00)" onclick="applyBgGradient('linear-gradient(135deg,#0a0a0f,#2a1a00)')"></div>
-      <div class="bgc-grad" style="background:linear-gradient(135deg,#0a0028,#280010)" onclick="applyBgGradient('linear-gradient(135deg,#0a0028,#280010)')"></div>
-    </div>
-    <div class="bgc-presets" style="margin-top:8px">
-      <div class="bgc-grad" style="background:linear-gradient(135deg,#000510,#001020,#000510)" onclick="applyBgGradient('linear-gradient(135deg,#000510,#001020,#000510)')"></div>
-      <div class="bgc-grad" style="background:linear-gradient(160deg,#0a0a0f 0%,#1a0028 50%,#000a1a 100%)" onclick="applyBgGradient('linear-gradient(160deg,#0a0a0f 0%,#1a0028 50%,#000a1a 100%)')"></div>
-      <div class="bgc-grad" style="background:radial-gradient(ellipse at top,#1a0a2e,#000)" onclick="applyBgGradient('radial-gradient(ellipse at top,#1a0a2e,#000)')"></div>
-      <div class="bgc-grad" style="background:radial-gradient(ellipse at top,#1a2800,#000)" onclick="applyBgGradient('radial-gradient(ellipse at top,#1a2800,#000)')"></div>
-    </div>
-
-    <div class="bgc-label">Image URL</div>
-    <div class="bgc-url-row">
-      <input class="bgc-url" id="bgImgUrl" placeholder="https://... image link paste karo" type="url">
-      <button class="bgc-url-apply" onclick="applyBgImage()">Apply</button>
-    </div>
-
-    <div class="bgc-label">Overlay Darkness &nbsp;<span id="overlayVal">82%</span></div>
-    <input class="bgc-slider" type="range" min="0" max="98" value="82" id="overlaySlider" oninput="updateOverlay(this.value)">
-
-    <button class="bgc-reset" onclick="resetBg()">↺ Reset to Default</button>
   </div>
-
-  <button class="bgc-toggle-btn" id="bgToggleBtn" onclick="toggleBgCustomizer()">🎨 BG</button>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./config.js?v=moon-ui-v2"></script>
