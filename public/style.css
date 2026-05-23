@@ -45,7 +45,7 @@
 html { scroll-behavior: smooth; }
 
 body {
-  background: var(--bg);
+  background: var(--bg) url("/bg.jpg") center/cover fixed no-repeat;
   color: var(--text);
   font-family: "DM Sans", system-ui, sans-serif;
   min-height: 100vh;
