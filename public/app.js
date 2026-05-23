@@ -79,9 +79,6 @@ function updateAdminButton() {
   // show/hide section manager button
   const smBtn = document.getElementById('sectionMgrBtn');
   if (smBtn) smBtn.style.display = isAdmin ? 'inline-flex' : 'none';
-  const bgBtn = document.getElementById('bgBtn');
-  if (bgBtn) bgBtn.style.display = isAdmin ? 'flex' : 'none';
-  if (!isAdmin) { const p = document.getElementById('bgPanel'); if(p) p.style.display='none'; }
 }
 
 function toggleAdmin() {
@@ -611,46 +608,3 @@ document.addEventListener('keydown', e => {
 });
 document.getElementById('newName').addEventListener('keydown', e => { if (e.key === 'Enter') saveMovie(); });
 document.getElementById('newUrl').addEventListener('keydown',  e => { if (e.key === 'Enter') saveMovie(); });
-
-/* ── BG Image ── */
-function toggleBgPanel() {
-  const p = document.getElementById('bgPanel');
-  p.style.display = p.style.display === 'block' ? 'none' : 'block';
-}
-
-function applyBgImage() {
-  const url = document.getElementById('bgUrlInput').value.trim();
-  if (!url) return;
-  document.querySelectorAll('.modal').forEach(m => {
-    m.style.backgroundImage = 'url("' + url + '")';
-    m.style.backgroundSize = 'cover';
-    m.style.backgroundPosition = 'center';
-  });
-  try { localStorage.setItem('modal_bg', url); } catch(e) {}
-  document.getElementById('bgPanel').style.display = 'none';
-}
-
-function removeBgImage() {
-  document.querySelectorAll('.modal').forEach(m => {
-    m.style.backgroundImage = '';
-  });
-  try { localStorage.removeItem('modal_bg'); } catch(e) {}
-  document.getElementById('bgUrlInput').value = '';
-}
-
-// Page load pe saved bg apply karo
-(function() {
-  try {
-    const saved = localStorage.getItem('modal_bg');
-    if (saved) {
-      document.querySelectorAll('.modal').forEach(m => {
-        m.style.backgroundImage = 'url("' + saved + '")';
-        m.style.backgroundSize = 'cover';
-        m.style.backgroundPosition = 'center';
-      });
-      document.getElementById('bgUrlInput').value = saved;
-    }
-  } catch(e) {}
-  const bgBtn = document.getElementById('bgBtn');
-  if (bgBtn) bgBtn.style.display = 'none';
-})();
