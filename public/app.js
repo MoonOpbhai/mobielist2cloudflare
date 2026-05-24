@@ -608,3 +608,15 @@ document.addEventListener('keydown', e => {
 });
 document.getElementById('newName').addEventListener('keydown', e => { if (e.key === 'Enter') saveMovie(); });
 document.getElementById('newUrl').addEventListener('keydown',  e => { if (e.key === 'Enter') saveMovie(); });
+
+/* ── Sticky header scroll effect ── */
+(function() {
+  const topbar = document.querySelector('.topbar');
+  window.addEventListener('scroll', function() {
+    if (window.scrollY > 10) {
+      topbar.classList.add('scrolled');
+    } else {
+      topbar.classList.remove('scrolled');
+    }
+  }, { passive: true });
+})();
