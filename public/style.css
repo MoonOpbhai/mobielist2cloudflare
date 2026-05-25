@@ -74,8 +74,6 @@ body::after {
   inset: 0;
   z-index: 0;
   background:
-    radial-gradient(ellipse 120% 60% at 20% 50%, rgba(100,20,160,0.18) 0%, transparent 60%),
-    radial-gradient(ellipse 80% 80% at 80% 50%, rgba(180,40,120,0.10) 0%, transparent 55%),
     radial-gradient(ellipse 100% 100% at 50% 100%, rgba(6,6,8,0.78) 0%, rgba(6,6,8,0.35) 45%, transparent 70%),
     linear-gradient(180deg, transparent 0%, transparent 35%, rgba(6,6,8,0.05) 65%, rgba(6,6,8,0.72) 100%);
   pointer-events: none;
@@ -93,18 +91,18 @@ body::after {
 .orb-a {
   width: 580px; height: 580px;
   top: -200px; left: -150px;
-  background: radial-gradient(circle, rgba(150,60,220,0.28), transparent 65%);
+  background: radial-gradient(circle, rgba(255,180,80,0.08), transparent 65%);
 }
 .orb-b {
   width: 500px; height: 500px;
   top: -180px; right: -160px;
-  background: radial-gradient(circle, rgba(220,60,140,0.22), transparent 65%);
+  background: radial-gradient(circle, rgba(255,120,40,0.06), transparent 65%);
 }
 .orb-c {
   width: 400px; height: 400px;
   bottom: 10%; left: 50%;
   transform: translateX(-50%);
-  background: radial-gradient(circle, rgba(180,50,255,0.12), transparent 65%);
+  background: radial-gradient(circle, rgba(180,50,255,0.06), transparent 65%);
 }
 .noise {
   position: fixed;
@@ -178,6 +176,7 @@ h1 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  filter: drop-shadow(0 2px 12px rgba(0,0,0,0.85)) drop-shadow(0 0px 4px rgba(0,0,0,0.7));
 }
 
 .tagline {
