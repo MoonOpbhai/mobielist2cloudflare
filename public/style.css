@@ -65,6 +65,8 @@ body::before {
   background-repeat: no-repeat;
   opacity: 0.80;
   pointer-events: none;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 /* Deep cinematic overlay — layered vignette + color */
