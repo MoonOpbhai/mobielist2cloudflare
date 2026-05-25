@@ -45,28 +45,36 @@
 html { scroll-behavior: smooth; }
 
 body {
-  background: var(--bg);
   color: var(--text);
   font-family: "DM Sans", system-ui, sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
   position: relative;
+  background-color: #060608;
 }
 
-/* ── Cinematic Background ── */
+/* ── True fixed background — works on mobile too ── */
+.bg-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image: url('bg.jpg?v=3');
+  background-size: cover;
+  background-position: center 30%;
+  background-repeat: no-repeat;
+  opacity: 0.82;
+  pointer-events: none;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   z-index: 0;
-  background-image: url('bg.jpg?v=2');
-  background-size: cover;
-  background-position: center 30%;
-  background-repeat: no-repeat;
-  opacity: 0.80;
+  background-color: rgba(6,6,8,0.22);
   pointer-events: none;
-  will-change: transform;
-  transform: translateZ(0);
 }
 
 /* Deep cinematic overlay — layered vignette + color */
