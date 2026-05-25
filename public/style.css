@@ -59,7 +59,7 @@ body::before {
   position: fixed;
   inset: 0;
   z-index: 0;
-  background-image: url('bg.jpg');
+  background-image: url('bg.jpg?v=2');
   background-size: cover;
   background-position: center 30%;
   background-repeat: no-repeat;
@@ -533,14 +533,14 @@ main {
   position: absolute;
   left: 0; top: 0; bottom: 0;
   width: 3px;
-  background: linear-gradient(180deg, #c060ff, #ff4db0);
+  background: linear-gradient(180deg, #f5c84b, #ff7a2f);
   opacity: 0;
   transition: opacity 0.18s;
   border-radius: 3px 0 0 3px;
 }
 .row:hover {
-  background: rgba(180,80,255,0.08);
-  border-color: rgba(180,80,255,0.22);
+  background: rgba(245,200,75,0.08);
+  border-color: rgba(245,200,75,0.22);
   transform: translateY(-2px);
   box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 0 0 1px rgba(180,80,255,0.08);
 }
