@@ -176,7 +176,7 @@ h1 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 2px 12px rgba(0,0,0,0.85)) drop-shadow(0 0px 4px rgba(0,0,0,0.7));
+  filter: drop-shadow(0 1px 6px rgba(0,0,0,0.45));
 }
 
 .tagline {
