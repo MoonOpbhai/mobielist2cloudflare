@@ -75,7 +75,7 @@ async function loadLinks() {
 function updateAdminButton() {
   const btn = document.getElementById('adminBtn');
   if (!btn) return;
-  btn.textContent = isAdmin ? '🔓 Admin On' : '🔒 Admin';
+  btn.textContent = isAdmin ? '🔓' : '🔒';
   btn.classList.toggle('admin-on', isAdmin);
   // show/hide section manager button
   const smBtn = document.getElementById('sectionMgrBtn');
