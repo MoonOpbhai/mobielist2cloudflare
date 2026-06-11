@@ -45,35 +45,25 @@
 html { scroll-behavior: smooth; }
 
 body {
+  background: var(--bg);
   color: var(--text);
   font-family: "DM Sans", system-ui, sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
   position: relative;
-  background-color: #060608;
 }
 
-/* ── True fixed background — works on mobile too ── */
-.bg-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  background-image: url('bg.jpg?v=5');
-  background-size: cover;
-  background-position: center 30%;
-  background-repeat: no-repeat;
-  opacity: 0.82;
-  pointer-events: none;
-  transform: translateZ(0);
-  will-change: transform;
-}
-
+/* ── Cinematic Background ── */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   z-index: 0;
-  background-color: rgba(6,6,8,0.22);
+  background-image: url('bg.jpg');
+  background-size: cover;
+  background-position: center 30%;
+  background-repeat: no-repeat;
+  opacity: 0.80;
   pointer-events: none;
 }
 
@@ -84,6 +74,8 @@ body::after {
   inset: 0;
   z-index: 0;
   background:
+    radial-gradient(ellipse 120% 60% at 20% 50%, rgba(100,20,160,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 80% at 80% 50%, rgba(180,40,120,0.10) 0%, transparent 55%),
     radial-gradient(ellipse 100% 100% at 50% 100%, rgba(6,6,8,0.78) 0%, rgba(6,6,8,0.35) 45%, transparent 70%),
     linear-gradient(180deg, transparent 0%, transparent 35%, rgba(6,6,8,0.05) 65%, rgba(6,6,8,0.72) 100%);
   pointer-events: none;
@@ -101,18 +93,18 @@ body::after {
 .orb-a {
   width: 580px; height: 580px;
   top: -200px; left: -150px;
-  background: radial-gradient(circle, rgba(255,180,80,0.08), transparent 65%);
+  background: radial-gradient(circle, rgba(150,60,220,0.28), transparent 65%);
 }
 .orb-b {
   width: 500px; height: 500px;
   top: -180px; right: -160px;
-  background: radial-gradient(circle, rgba(255,120,40,0.06), transparent 65%);
+  background: radial-gradient(circle, rgba(220,60,140,0.22), transparent 65%);
 }
 .orb-c {
   width: 400px; height: 400px;
   bottom: 10%; left: 50%;
   transform: translateX(-50%);
-  background: radial-gradient(circle, rgba(180,50,255,0.06), transparent 65%);
+  background: radial-gradient(circle, rgba(180,50,255,0.12), transparent 65%);
 }
 .noise {
   position: fixed;
@@ -186,7 +178,7 @@ h1 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 1px 6px rgba(0,0,0,0.45));
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.7)) drop-shadow(0 4px 16px rgba(0,0,0,0.5));
 }
 
 .tagline {
@@ -539,22 +531,15 @@ main {
   -webkit-backdrop-filter: blur(12px);
 }
 .row::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 3px;
-  background: linear-gradient(180deg, #f5c84b, #ff7a2f);
-  opacity: 0;
-  transition: opacity 0.18s;
-  border-radius: 3px 0 0 3px;
+  display: none;
 }
 .row:hover {
-  background: rgba(245,200,75,0.08);
-  border-color: rgba(245,200,75,0.22);
+  background: rgba(255,200,75,0.06);
+  border-color: rgba(255,200,75,0.18);
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 0 0 1px rgba(180,80,255,0.08);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
 }
-.row:hover::before { opacity: 1; }
+.row:hover::before { display: none; }
 .row.new { animation: rowHighlight 2.8s ease forwards; }
 
 .num {
