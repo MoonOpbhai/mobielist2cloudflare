@@ -28,6 +28,7 @@ async function init() {
     await Promise.all([loadMovies(), loadSections(), loadLinks()]);
     document.getElementById('loading').style.display = 'none';
     renderSectionButtons();
+    initSectionBarArrows();
     renderSectionSelect();
     updateAdminButton();
     render();
@@ -128,6 +129,34 @@ function renderSectionButtons() {
       render();
     });
   });
+  if (_updateSbArrows) setTimeout(_updateSbArrows, 80);
+}
+
+/* ── Section Bar Arrow Scroll ── */
+let _updateSbArrows = null;
+function initSectionBarArrows() {
+  const bar = document.getElementById('sectionBar');
+  const leftBtn = document.getElementById('sbArrowLeft');
+  const rightBtn = document.getElementById('sbArrowRight');
+  if (!bar || !leftBtn || !rightBtn) return;
+
+  function updateArrows() {
+    const canLeft = bar.scrollLeft > 4;
+    const canRight = bar.scrollLeft < bar.scrollWidth - bar.clientWidth - 4;
+    leftBtn.classList.toggle('visible', canLeft);
+    rightBtn.classList.toggle('visible', canRight);
+  }
+  _updateSbArrows = updateArrows;
+
+  leftBtn.addEventListener('click', () => {
+    bar.scrollBy({ left: -180, behavior: 'smooth' });
+  });
+  rightBtn.addEventListener('click', () => {
+    bar.scrollBy({ left: 180, behavior: 'smooth' });
+  });
+
+  bar.addEventListener('scroll', updateArrows, { passive: true });
+  setTimeout(updateArrows, 100);
 }
 
 function renderSectionSelect(selected) {
