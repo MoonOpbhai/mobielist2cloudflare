@@ -10,6 +10,8 @@ let allLinks      = {};      // { movie_id: [link, ...] }
 let allSections   = [];      // sections from DB
 let filt          = 'all';
 let sectionFilt   = 'all';
+let sortOrder     = 'newest';
+let visible       = []; // currently rendered list (for random pick etc)
 let adminPassword = sessionStorage.getItem('movie_admin_password') || '';
 let isAdmin       = adminPassword === 'Amonchand111';
 
@@ -43,7 +45,7 @@ async function init() {
 async function loadMovies() {
   const { data, error } = await db
     .from('movies')
-    .select('id,name,url,section,created_at')
+    .select('id,name,url,section,created_at,poster_path,year,rating')
     .order('created_at', { ascending: true });
   if (error) throw error;
   all = (data || []).map(m => ({ ...m, section: m.section || 'Movies' }));
@@ -349,7 +351,7 @@ function detectSection(name) {
 function render() {
   const q = (document.getElementById('search').value || '').toLowerCase().trim();
 
-  const visible = all.filter(m => {
+  let list = all.filter(m => {
     const name    = (m.name || '').toLowerCase();
     const section = m.section || 'Movies';
     const okSearch  = name.includes(q);
@@ -358,6 +360,20 @@ function render() {
     if (filt === 'nolink') return okSearch && okSection && !m.url && !(allLinks[m.id] && allLinks[m.id].length);
     return okSearch && okSection;
   });
+
+  // Sort
+  list = [...list];
+  if (sortOrder === 'az') {
+    list.sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' }));
+  } else if (sortOrder === 'za') {
+    list.sort((a, b) => (b.name || '').localeCompare(a.name || '', undefined, { sensitivity: 'base' }));
+  } else if (sortOrder === 'oldest') {
+    list.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  } else { // newest (default)
+    list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  }
+
+  visible = list;
 
   document.getElementById('total').textContent       = all.length;
   document.getElementById('shown').textContent       = visible.length;
@@ -398,11 +414,18 @@ function render() {
       <button class="links-btn"    onclick="openLinksMgr('${esc(id)}')" title="Manage Links">🔗</button>
       <button class="del-btn"      onclick="delMovie('${esc(id)}')"    title="Delete">✕</button>` : '';
 
+    const poster = m.poster_path
+      ? `<img class="thumb" src="https://image.tmdb.org/t/p/w92${esc(m.poster_path)}" alt="" loading="lazy">`
+      : `<span class="thumb thumb-empty">🎬</span>`;
+
     return `
       <div class="row" data-id="${esc(id)}" style="animation-delay:${delay}s">
+        ${poster}
         <span class="num">${num}</span>
         <span class="dot"></span>
         <span class="name">${esc(m.name)}</span>
+        ${m.year ? `<span class="year">${esc(m.year)}</span>` : ''}
+        ${m.rating ? `<span class="rating">⭐ ${esc(Number(m.rating).toFixed(1))}</span>` : ''}
         <span class="tag" data-sec="${esc(section)}">${esc(section)}</span>
         <div class="links-group">${linksHtml}</div>
         ${adminBtns}
@@ -415,237 +438,95 @@ function esc(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-/* ── Modal: Add ── */
-function openModal() {
-  document.getElementById('editId').value           = '';
-  document.getElementById('modalTitle').textContent  = 'Add New Title';
-  document.getElementById('saveBtn').textContent     = 'Add to List';
-  document.getElementById('newName').value = '';
-  document.getElementById('newUrl').value  = '';
-  renderSectionSelect(sectionFilt !== 'all' ? sectionFilt : 'Movies');
-  document.getElementById('ov').classList.add('open');
-  setTimeout(() => document.getElementById('newName').focus(), 60);
-}
+/* ── TMDB Integration ── */
+const TMDB_KEY = (window.APP_CONFIG && window.APP_CONFIG.TMDB_API_KEY) || '';
+const TMDB_IMG = 'https://image.tmdb.org/t/p/w154';
 
-/* ── Modal: Edit (admin) ── */
-function openEdit(id) {
-  if (!isAdmin) return toast('❌ Admin login required', true);
-  const movie = all.find(m => String(m.id) === String(id));
-  if (!movie)  return toast('❌ Movie nahi mili', true);
-  document.getElementById('editId').value           = String(id);
-  document.getElementById('newName').value          = movie.name || '';
-  document.getElementById('newUrl').value           = movie.url  || '';
-  renderSectionSelect(movie.section || 'Movies');
-  document.getElementById('modalTitle').textContent  = 'Edit Title';
-  document.getElementById('saveBtn').textContent     = 'Save Changes';
-  document.getElementById('ov').classList.add('open');
-  setTimeout(() => { const i = document.getElementById('newName'); i.focus(); i.select(); }, 60);
-}
+async function searchTMDB() {
+  const query = document.getElementById('newName').value.trim();
+  const resultsEl = document.getElementById('tmdbResults');
+  const btn = document.getElementById('tmdbBtn');
 
-/* ── Modal: Close ── */
-function closeModal() {
-  document.getElementById('ov').classList.remove('open');
-  document.getElementById('editId').value = '';
-  document.getElementById('newName').value = '';
-  document.getElementById('newUrl').value  = '';
-  const b = document.getElementById('saveBtn');
-  b.disabled    = false;
-  b.textContent = 'Add to List';
-}
-
-/* ── Save (add / edit) ── */
-async function saveMovie() {
-  const nameInput    = document.getElementById('newName');
-  const urlInput     = document.getElementById('newUrl');
-  const sectionInput = document.getElementById('newSection');
-  const id           = document.getElementById('editId').value.trim();
-
-  const name    = nameInput.value.trim();
-  const url     = urlInput.value.trim() || null;
-  let   section = sectionInput ? sectionInput.value : 'Movies';
-
-  if (!name) {
-    nameInput.style.borderColor = 'var(--red)';
-    nameInput.focus();
-    setTimeout(() => { nameInput.style.borderColor = ''; }, 1200);
+  if (!query) {
+    toast('❌ Pehle naam likho', true);
+    return;
+  }
+  if (!TMDB_KEY) {
+    toast('❌ TMDB API key configure nahi hai', true);
     return;
   }
 
-  if (!id && (!section || section === 'Movies')) section = detectSection(name);
-
-  const btn = document.getElementById('saveBtn');
   btn.disabled = true;
-  btn.innerHTML = '<span class="spin"></span>Saving...';
+  btn.textContent = 'Searching...';
+  resultsEl.innerHTML = '';
 
   try {
-    if (id) {
-      if (!isAdmin) throw new Error('Admin login required');
-      const { data, error } = await db.rpc('admin_update_movie', {
-        p_id: id, p_name: name, p_url: url || '', p_section: section, p_password: adminPassword
-      });
-      if (error) throw error;
-      if (!data)  throw new Error('No row updated');
-      toast('✅ Edit ho gaya!');
+    const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}&include_adult=false`);
+    const data = await res.json();
+    const results = (data.results || [])
+      .filter(r => (r.media_type === 'movie' || r.media_type === 'tv') && r.poster_path)
+      .slice(0, 6);
+
+    if (!results.length) {
+      resultsEl.innerHTML = '<p class="tmdb-empty">Kuch nahi mila TMDB pe 😕</p>';
     } else {
-      const { error } = await db.from('movies').insert({ name, url, section });
-      if (error) throw error;
-      toast('✅ "' + name + '" add ho gaya!');
+      resultsEl.innerHTML = results.map(r => {
+        const title = r.title || r.name || 'Untitled';
+        const date  = r.release_date || r.first_air_date || '';
+        const year  = date ? date.slice(0, 4) : '';
+        const rating = r.vote_average ? r.vote_average.toFixed(1) : '';
+        return `
+          <div class="tmdb-card" onclick='selectTMDB(${JSON.stringify({
+            title, year, rating: r.vote_average || null, poster: r.poster_path
+          }).replace(/'/g, "&#39;")})'>
+            <img src="${TMDB_IMG}${esc(r.poster_path)}" alt="${esc(title)}" loading="lazy">
+            <div class="tmdb-card-info">
+              <span class="tmdb-card-title">${esc(title)}</span>
+              <span class="tmdb-card-meta">${esc(year)}${rating ? ' • ⭐ ' + esc(rating) : ''}</span>
+            </div>
+          </div>`;
+      }).join('');
     }
-    await Promise.all([loadMovies(), loadLinks()]);
-    renderSectionButtons();
-    renderSectionSelect(section);
-    closeModal();
-    render();
   } catch (e) {
-    toast('❌ Save nahi hua: ' + e.message, true);
-    console.error(e);
-    btn.disabled    = false;
-    btn.textContent = id ? 'Save Changes' : 'Add to List';
-  }
-}
-
-/* ── Delete movie (admin) ── */
-async function delMovie(id) {
-  if (!isAdmin) return toast('❌ Admin login required', true);
-  if (!confirm('Delete karo? Ye movie permanently remove hogi.')) return;
-  try {
-    const { data, error } = await db.rpc('admin_delete_movie', { p_id: id, p_password: adminPassword });
-    if (error) throw error;
-    if (!data)  throw new Error('Delete failed');
-    all = all.filter(m => String(m.id) !== String(id));
-    delete allLinks[id];
-    renderSectionButtons();
-    render();
-    toast('🗑️ Delete ho gaya');
-  } catch (e) {
-    toast('❌ Delete nahi hua: ' + e.message, true);
-  }
-}
-
-/* ── Links Manager Modal ── */
-let linksMgrMovieId = null;
-
-function openLinksMgr(movieId) {
-  if (!isAdmin) return toast('❌ Admin required', true);
-  linksMgrMovieId = movieId;
-  const movie = all.find(m => String(m.id) === String(movieId));
-  document.getElementById('linksMgrTitle').textContent = movie ? movie.name : 'Links';
-  document.getElementById('newLinkLabel').value = '';
-  document.getElementById('newLinkUrl').value   = '';
-  renderLinksMgrList();
-  document.getElementById('linksMgrOv').classList.add('open');
-}
-
-function closeLinksMgr() {
-  document.getElementById('linksMgrOv').classList.remove('open');
-  linksMgrMovieId = null;
-}
-
-function renderLinksMgrList() {
-  const el    = document.getElementById('linksMgrList');
-  const links = allLinks[linksMgrMovieId] || [];
-  if (!links.length) {
-    el.innerHTML = '<p class="no-links-msg">Koi link nahi hai abhi.</p>';
-    return;
-  }
-  el.innerHTML = links.map(lnk => `
-    <div class="lmgr-row" data-id="${esc(lnk.id)}">
-      <span class="lmgr-label">${esc(lnk.label)}</span>
-      <a class="lmgr-url" href="${esc(lnk.url)}" target="_blank" rel="noopener">${esc(lnk.url.length > 45 ? lnk.url.slice(0,45)+'…' : lnk.url)}</a>
-      <button class="lmgr-del" onclick="deleteLink('${esc(lnk.id)}')" title="Remove link">✕</button>
-    </div>
-  `).join('');
-}
-
-async function addLink() {
-  const label = document.getElementById('newLinkLabel').value.trim() || 'Download';
-  const url   = document.getElementById('newLinkUrl').value.trim();
-  if (!url) {
-    document.getElementById('newLinkUrl').style.borderColor = 'var(--red)';
-    setTimeout(() => document.getElementById('newLinkUrl').style.borderColor = '', 1000);
-    return;
-  }
-  const btn = document.getElementById('addLinkBtn');
-  btn.disabled = true; btn.textContent = 'Adding...';
-  try {
-    const { data, error } = await db.rpc('admin_add_link', {
-      p_movie_id: linksMgrMovieId, p_label: label, p_url: url, p_password: adminPassword
-    });
-    if (error) throw error;
-    if (!data) throw new Error('Add failed');
-    document.getElementById('newLinkLabel').value = '';
-    document.getElementById('newLinkUrl').value   = '';
-    await loadLinks();
-    renderLinksMgrList();
-    render();
-    toast('✅ Link add ho gaya!');
-  } catch (e) {
-    toast('❌ ' + e.message, true);
+    toast('❌ TMDB search fail: ' + e.message, true);
   } finally {
-    btn.disabled = false; btn.textContent = '+ Add Link';
+    btn.disabled = false;
+    btn.textContent = '🎬 Fetch Poster & Info from TMDB';
   }
 }
 
-async function deleteLink(linkId) {
-  if (!confirm('Ye link remove karo?')) return;
-  try {
-    const { data, error } = await db.rpc('admin_delete_link', { p_link_id: linkId, p_password: adminPassword });
-    if (error) throw error;
-    if (!data) throw new Error('Delete failed');
-    await loadLinks();
-    renderLinksMgrList();
-    render();
-    toast('🗑️ Link remove ho gaya');
-  } catch (e) {
-    toast('❌ ' + e.message, true);
+function selectTMDB(item, silent) {
+  document.getElementById('newPosterPath').value = item.poster || '';
+  document.getElementById('newYear').value        = item.year || '';
+  document.getElementById('newRating').value      = item.rating || '';
+  document.getElementById('tmdbResults').innerHTML = '';
+
+  const preview = document.getElementById('tmdbPreview');
+  const img     = document.getElementById('tmdbPreviewImg');
+  const title   = document.getElementById('tmdbPreviewTitle');
+  const meta    = document.getElementById('tmdbPreviewMeta');
+
+  if (item.poster) {
+    img.src = TMDB_IMG + item.poster;
+    img.style.display = '';
+  } else {
+    img.style.display = 'none';
   }
+  title.textContent = item.title || '';
+  meta.textContent  = [item.year, item.rating ? '⭐ ' + Number(item.rating).toFixed(1) : ''].filter(Boolean).join(' • ');
+  preview.style.display = 'flex';
+
+  if (!silent) toast('✅ Info fetch ho gaya!');
 }
 
-/* ── Toast ── */
-function toast(msg, isErr = false, dur = 3200) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className   = (isErr ? 'err ' : '') + 'show';
-  clearTimeout(t._t);
-  t._t = setTimeout(() => t.classList.remove('show'), dur);
+function clearTMDB() {
+  document.getElementById('newPosterPath').value = '';
+  document.getElementById('newYear').value        = '';
+  document.getElementById('newRating').value      = '';
+  document.getElementById('tmdbPreview').style.display = 'none';
+  document.getElementById('tmdbResults').innerHTML = '';
 }
 
-/* ── Events ── */
-document.getElementById('search').addEventListener('input', render);
 
-document.querySelectorAll('.fb').forEach(b => {
-  b.addEventListener('click', () => {
-    document.querySelectorAll('.fb').forEach(x => x.classList.remove('active'));
-    b.classList.add('active');
-    filt = b.dataset.f;
-    render();
-  });
-});
-
-document.getElementById('ov').addEventListener('click', e => {
-  if (e.target === document.getElementById('ov')) closeModal();
-});
-document.getElementById('linksMgrOv').addEventListener('click', e => {
-  if (e.target === document.getElementById('linksMgrOv')) closeLinksMgr();
-});
-document.getElementById('sectionMgrOv').addEventListener('click', e => {
-  if (e.target === document.getElementById('sectionMgrOv')) closeSectionMgr();
-});
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeModal(); closeLinksMgr(); closeSectionMgr(); }
-});
-document.getElementById('newName').addEventListener('keydown', e => { if (e.key === 'Enter') saveMovie(); });
-document.getElementById('newUrl').addEventListener('keydown',  e => { if (e.key === 'Enter') saveMovie(); });
-
-/* ── Sticky header scroll effect ── */
-(function() {
-  const topbar = document.querySelector('.topbar');
-  window.addEventListener('scroll', function() {
-    if (window.scrollY > 10) {
-      topbar.classList.add('scrolled');
-    } else {
-      topbar.classList.remove('scrolled');
-    }
-  }, { passive: true });
-})();
+/* ── Modal: Add ── */
+        
