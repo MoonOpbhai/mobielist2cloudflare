@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MOON LIST — Cinema Vault</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,900;1,9..40,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=moon-ui-v12">
+  <link rel="stylesheet" href="./style.css?v=moon-ui-v14">
 </head>
 <body>
 
@@ -46,6 +46,15 @@
           <button class="fb" data-f="link">Links</button>
           <button class="fb" data-f="nolink">No Link</button>
         </div>
+        <div class="sort-wrap">
+          <select id="sortBy" title="Sort by">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="az">A → Z</option>
+            <option value="za">Z → A</option>
+          </select>
+        </div>
+        <button class="random-btn" onclick="randomPick()" title="Random Pick">🎲</button>
       </div>
 
       <div class="section-bar-wrap">
@@ -87,6 +96,21 @@
       <div class="field">
         <label for="newName">Movie / Show Name <span class="req">*</span></label>
         <input type="text" id="newName" placeholder="e.g. Interstellar, Attack on Titan...">
+      </div>
+      <div class="field tmdb-field">
+        <button type="button" class="tmdb-btn" id="tmdbBtn" onclick="searchTMDB()">🎬 Fetch Poster &amp; Info from TMDB</button>
+        <div id="tmdbResults" class="tmdb-results"></div>
+        <div id="tmdbPreview" class="tmdb-preview" style="display:none">
+          <img id="tmdbPreviewImg" alt="Poster preview">
+          <div class="tmdb-preview-info">
+            <span id="tmdbPreviewTitle"></span>
+            <span id="tmdbPreviewMeta"></span>
+          </div>
+          <button type="button" class="tmdb-clear" onclick="clearTMDB()" title="Remove poster">✕</button>
+        </div>
+        <input type="hidden" id="newPosterPath">
+        <input type="hidden" id="newYear">
+        <input type="hidden" id="newRating">
       </div>
       <div class="field">
         <label for="newUrl">Primary Link <span class="opt">optional</span></label>
@@ -161,7 +185,7 @@
   <div id="toast"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./config.js?v=moon-ui-v12"></script>
-  <script src="./app.js?v=moon-ui-v12"></script>
+  <script src="./config.js?v=moon-ui-v14"></script>
+  <script src="./app.js?v=moon-ui-v14"></script>
 </body>
 </html>
