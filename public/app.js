@@ -1,17 +1,17 @@
-/* app.js — moon-ui v2 */
+/* app.js — moon-ui v3 */
 
 const cfg = window.APP_CONFIG || {};
 const SUPABASE_URL      = cfg.SUPABASE_URL      || 'PASTE_SUPABASE_URL_HERE';
 const SUPABASE_ANON_KEY = cfg.SUPABASE_ANON_KEY || 'PASTE_SUPABASE_ANON_KEY_HERE';
 
 let db            = null;
-let all           = [];      // movies
-let allLinks      = {};      // { movie_id: [link, ...] }
-let allSections   = [];      // sections from DB
+let all           = [];
+let allLinks      = {};
+let allSections   = [];
 let filt          = 'all';
 let sectionFilt   = 'all';
 let sortOrder     = 'newest';
-let visible       = []; // currently rendered list (for random pick etc)
+let visible       = [];
 let adminPassword = sessionStorage.getItem('movie_admin_password') || '';
 let isAdmin       = adminPassword === 'Amonchand111';
 
@@ -33,6 +33,7 @@ async function init() {
     initSectionBarArrows();
     renderSectionSelect();
     updateAdminButton();
+    setupEventListeners();
     render();
   } catch (e) {
     document.getElementById('loading').innerHTML =
@@ -41,11 +42,36 @@ async function init() {
   }
 }
 
+/* ── Event Listeners ── */
+function setupEventListeners() {
+  // Search
+  document.getElementById('search').addEventListener('input', render);
+
+  // Filter tabs (All / Links / No Link)
+  document.querySelectorAll('.fb').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.fb').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filt = btn.dataset.f || 'all';
+      render();
+    });
+  });
+
+  // Sort
+  const sortEl = document.getElementById('sortBy');
+  if (sortEl) {
+    sortEl.addEventListener('change', e => {
+      sortOrder = e.target.value;
+      render();
+    });
+  }
+}
+
 /* ── Fetch ── */
 async function loadMovies() {
   const { data, error } = await db
     .from('movies')
-    .select('id,name,url,section,created_at,poster_path,year,rating')
+    .select('id,name,url,section,created_at')
     .order('created_at', { ascending: true });
   if (error) throw error;
   all = (data || []).map(m => ({ ...m, section: m.section || 'Movies' }));
@@ -73,13 +99,12 @@ async function loadLinks() {
   });
 }
 
-/* ── Admin toggle ── */
+/* ── Admin ── */
 function updateAdminButton() {
   const btn = document.getElementById('adminBtn');
   if (!btn) return;
   btn.textContent = isAdmin ? '🔓' : '🔒';
   btn.classList.toggle('admin-on', isAdmin);
-  // show/hide section manager button
   const smBtn = document.getElementById('sectionMgrBtn');
   if (smBtn) smBtn.style.display = isAdmin ? 'inline-flex' : 'none';
 }
@@ -134,29 +159,24 @@ function renderSectionButtons() {
   if (_updateSbArrows) setTimeout(_updateSbArrows, 80);
 }
 
-/* ── Section Bar Arrow Scroll ── */
+/* ── Section Bar Arrows ── */
 let _updateSbArrows = null;
 function initSectionBarArrows() {
-  const bar = document.getElementById('sectionBar');
-  const leftBtn = document.getElementById('sbArrowLeft');
+  const bar      = document.getElementById('sectionBar');
+  const leftBtn  = document.getElementById('sbArrowLeft');
   const rightBtn = document.getElementById('sbArrowRight');
   if (!bar || !leftBtn || !rightBtn) return;
 
   function updateArrows() {
-    const canLeft = bar.scrollLeft > 4;
+    const canLeft  = bar.scrollLeft > 4;
     const canRight = bar.scrollLeft < bar.scrollWidth - bar.clientWidth - 4;
     leftBtn.classList.toggle('visible', canLeft);
     rightBtn.classList.toggle('visible', canRight);
   }
   _updateSbArrows = updateArrows;
 
-  leftBtn.addEventListener('click', () => {
-    bar.scrollBy({ left: -180, behavior: 'smooth' });
-  });
-  rightBtn.addEventListener('click', () => {
-    bar.scrollBy({ left: 180, behavior: 'smooth' });
-  });
-
+  leftBtn.addEventListener('click',  () => bar.scrollBy({ left: -180, behavior: 'smooth' }));
+  rightBtn.addEventListener('click', () => bar.scrollBy({ left:  180, behavior: 'smooth' }));
   bar.addEventListener('scroll', updateArrows, { passive: true });
   setTimeout(updateArrows, 100);
 }
@@ -204,53 +224,29 @@ function renderSectionMgrList() {
 function startEditSection(id, currentName) {
   const nameEl = document.getElementById(`smgr-name-${id}`);
   if (!nameEl) return;
-
-  // Replace span with input inline
   nameEl.outerHTML = `
     <input class="smgr-name-input" id="smgr-input-${id}"
-      value="${esc(currentName)}" data-old="${esc(currentName)}"
-      onkeydown="handleSectionEditKey(event,'${id}')"
-      onblur="cancelEditSection('${id}','${esc(currentName)}')"
-    >
-    <button class="smgr-save-edit" onmousedown="event.preventDefault()" onclick="saveEditSection('${id}')">✓</button>
-  `;
-  const inp = document.getElementById(`smgr-input-${id}`);
-  if (inp) { inp.focus(); inp.select(); }
-}
-
-function handleSectionEditKey(e, id) {
-  if (e.key === 'Enter') { e.preventDefault(); saveEditSection(id); }
-  if (e.key === 'Escape') {
+      value="${esc(currentName)}"
+      onkeydown="if(event.key==='Enter')saveEditSection('${id}','${esc(currentName)}');if(event.key==='Escape')renderSectionMgrList();"
+    >`;
+  setTimeout(() => {
     const inp = document.getElementById(`smgr-input-${id}`);
-    cancelEditSection(id, inp ? inp.dataset.old : '');
-  }
+    if (inp) { inp.focus(); inp.select(); }
+  }, 30);
 }
 
-function cancelEditSection(id, oldName) {
-  // Only restore if input still exists (not already saved)
-  const inp = document.getElementById(`smgr-input-${id}`);
-  if (!inp) return;
-  renderSectionMgrList();
-}
-
-async function saveEditSection(id) {
+async function saveEditSection(id, oldName) {
   const inp = document.getElementById(`smgr-input-${id}`);
   if (!inp) return;
   const newName = inp.value.trim();
-  const oldName = inp.dataset.old;
-  if (!newName) { inp.style.borderColor = 'var(--red)'; return; }
-  if (newName === oldName) { renderSectionMgrList(); return; }
-
-  inp.disabled = true;
+  if (!newName || newName === oldName) { renderSectionMgrList(); return; }
 
   try {
     const { data, error } = await db.rpc('admin_rename_section', {
       p_old_name: oldName, p_new_name: newName, p_password: adminPassword
     });
     if (error) throw error;
-    if (!data) throw new Error('Rename failed');
-
-    // Update local state
+    if (!data)  throw new Error('Rename fail — admin check karo');
     allSections = allSections.map(s => s.id === id ? { ...s, name: newName } : s);
     all = all.map(m => m.section === oldName ? { ...m, section: newName } : m);
     renderSectionMgrList();
@@ -264,63 +260,49 @@ async function saveEditSection(id) {
   }
 }
 
-async function moveSection(index, dir) {
-  const newIndex = index + dir;
-  if (newIndex < 0 || newIndex >= allSections.length) return;
-
-  // Swap in local array
-  const arr = [...allSections];
-  [arr[index], arr[newIndex]] = [arr[newIndex], arr[index]];
-
-  // Update sort_order for all (just reassign 1,2,3...)
-  const updates = arr.map((s, i) => ({ id: s.id, sort_order: i + 1 }));
-
-  try {
-    // Update each section's sort_order via admin RPC
-    const { error } = await db.rpc('admin_reorder_sections', {
-      p_ids:    updates.map(u => u.id),
-      p_orders: updates.map(u => u.sort_order),
-      p_password: adminPassword
-    });
-    if (error) throw error;
-    allSections = arr.map((s, i) => ({ ...s, sort_order: i + 1 }));
-    renderSectionMgrList();
-    renderSectionButtons();
-    renderSectionSelect();
-  } catch (e) {
-    toast('❌ Reorder nahi hua: ' + e.message, true);
-  }
+async function moveSection(idx, dir) {
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= allSections.length) return;
+  [allSections[idx], allSections[newIdx]] = [allSections[newIdx], allSections[idx]];
+  const updates = allSections.map((s, i) => db.rpc('admin_update_section_order', {
+    p_id: s.id, p_sort_order: i + 1, p_password: adminPassword
+  }));
+  await Promise.all(updates).catch(e => toast('❌ Order save nahi hua: ' + e.message, true));
+  renderSectionMgrList();
+  renderSectionButtons();
 }
 
 async function addSection() {
-  const nameEl = document.getElementById('newSectionName');
-  const name = nameEl.value.trim();
-  if (!name) { nameEl.style.borderColor = 'var(--red)'; setTimeout(() => nameEl.style.borderColor = '', 1000); return; }
+  if (!isAdmin) return toast('❌ Admin required', true);
+  const inp  = document.getElementById('newSectionName');
+  const name = inp.value.trim();
+  if (!name) return toast('❌ Naam daalo', true);
+
   const btn = document.getElementById('addSectionBtn');
-  btn.disabled = true; btn.textContent = 'Adding...';
+  btn.disabled = true;
   try {
-    const { data, error } = await db.rpc('admin_add_section', { p_name: name, p_password: adminPassword });
+    const { error } = await db.rpc('admin_add_section', { p_name: name, p_password: adminPassword });
     if (error) throw error;
-    if (!data) throw new Error('Failed');
-    nameEl.value = '';
-    await loadSections();
+    inp.value = '';
+    await Promise.all([loadSections()]);
     renderSectionMgrList();
     renderSectionButtons();
     renderSectionSelect();
-    toast('✅ Section "' + name + '" add ho gaya!');
+    toast(`✅ "${name}" section add ho gaya!`);
   } catch (e) {
     toast('❌ ' + e.message, true);
   } finally {
-    btn.disabled = false; btn.textContent = '+ Add Section';
+    btn.disabled = false;
   }
 }
 
 async function deleteSection(name) {
-  if (!confirm(`Section "${name}" delete karo?\nIs section ke movies "Movies" mein move ho jayenge.`)) return;
+  if (!isAdmin) return toast('❌ Admin required', true);
+  if (!confirm(`"${name}" section delete karna hai? Iske saare movies → Movies section mein chale jayenge.`)) return;
+
   try {
-    const { data, error } = await db.rpc('admin_delete_section', { p_name: name, p_password: adminPassword });
+    const { error } = await db.rpc('admin_delete_section', { p_name: name, p_password: adminPassword });
     if (error) throw error;
-    if (!data) throw new Error('Failed or protected');
     await Promise.all([loadMovies(), loadSections()]);
     renderSectionMgrList();
     renderSectionButtons();
@@ -340,36 +322,35 @@ function detectSection(name) {
        'black clover','dandadan','death note'].some(x => n.includes(x))) return 'Anime';
   if (['series','season','webseries','web series','netflix','prime','hbo',
        'money heist','breaking bad','better call saul','panchayat','mirzapur'].some(x => n.includes(x))) return 'Series';
-  if (['korean','k-drama','k drama','oldboy','train to busan','the wailing',
-       'bloodhounds','sweet home','alice in borderland'].some(x => n.includes(x))) return 'Korean';
+  if (['korean','k-drama','k drama','oldboy','train to busan'].some(x => n.includes(x))) return 'Korean';
   if (['bengali','abar proloy','bibaho','kothanodi'].some(x => n.includes(x))) return 'Bengali';
-  if (['comedy','21 jump street','horrible bosses','pineapple express'].some(x => n.includes(x))) return 'Comedy';
+  if (['comedy','21 jump street','horrible bosses'].some(x => n.includes(x))) return 'Comedy';
   return sectionFilt !== 'all' ? sectionFilt : 'Movies';
 }
 
-/* ── Render list ── */
+/* ── Render ── */
 function render() {
   const q = (document.getElementById('search').value || '').toLowerCase().trim();
 
   let list = all.filter(m => {
-    const name    = (m.name || '').toLowerCase();
-    const section = m.section || 'Movies';
+    const name      = (m.name || '').toLowerCase();
+    const section   = m.section || 'Movies';
+    const hasLink   = m.url || (allLinks[m.id] && allLinks[m.id].length);
     const okSearch  = name.includes(q);
     const okSection = sectionFilt === 'all' || section === sectionFilt;
-    if (filt === 'link')   return okSearch && okSection && (m.url || (allLinks[m.id] && allLinks[m.id].length));
-    if (filt === 'nolink') return okSearch && okSection && !m.url && !(allLinks[m.id] && allLinks[m.id].length);
+    if (filt === 'link')   return okSearch && okSection && hasLink;
+    if (filt === 'nolink') return okSearch && okSection && !hasLink;
     return okSearch && okSection;
   });
 
   // Sort
-  list = [...list];
   if (sortOrder === 'az') {
     list.sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' }));
   } else if (sortOrder === 'za') {
     list.sort((a, b) => (b.name || '').localeCompare(a.name || '', undefined, { sensitivity: 'base' }));
   } else if (sortOrder === 'oldest') {
     list.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-  } else { // newest (default)
+  } else {
     list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   }
 
@@ -397,35 +378,26 @@ function render() {
     const section = m.section || 'Movies';
     const delay   = Math.min(idx * 0.016, 0.32);
 
-    // Links: movie_links first, then fallback to url column
     const links = allLinks[m.id] || [];
     let linksHtml = '';
     if (links.length > 0) {
       linksHtml = links.map(lnk =>
-        `<a class="dl" href="${esc(lnk.url)}" target="_blank" rel="noopener noreferrer"
-            title="${esc(lnk.label)}">↗ ${esc(lnk.label)}</a>`
+        `<a class="dl" href="${esc(lnk.url)}" target="_blank" rel="noopener noreferrer" title="${esc(lnk.label)}">↗ ${esc(lnk.label)}</a>`
       ).join('');
     } else if (m.url) {
       linksHtml = `<a class="dl" href="${esc(m.url)}" target="_blank" rel="noopener noreferrer">↗ Open</a>`;
     }
 
     const adminBtns = isAdmin ? `
-      <button class="edit-btn"     onclick="openEdit('${esc(id)}')"    title="Edit">✎</button>
-      <button class="links-btn"    onclick="openLinksMgr('${esc(id)}')" title="Manage Links">🔗</button>
-      <button class="del-btn"      onclick="delMovie('${esc(id)}')"    title="Delete">✕</button>` : '';
-
-    const poster = m.poster_path
-      ? `<img class="thumb" src="https://image.tmdb.org/t/p/w92${esc(m.poster_path)}" alt="" loading="lazy">`
-      : `<span class="thumb thumb-empty">🎬</span>`;
+      <button class="edit-btn"  onclick="openEdit('${esc(id)}')"     title="Edit">✎</button>
+      <button class="links-btn" onclick="openLinksMgr('${esc(id)}')" title="Manage Links">🔗</button>
+      <button class="del-btn"   onclick="delMovie('${esc(id)}')"     title="Delete">✕</button>` : '';
 
     return `
       <div class="row" data-id="${esc(id)}" style="animation-delay:${delay}s">
-        ${poster}
         <span class="num">${num}</span>
         <span class="dot"></span>
         <span class="name">${esc(m.name)}</span>
-        ${m.year ? `<span class="year">${esc(m.year)}</span>` : ''}
-        ${m.rating ? `<span class="rating">⭐ ${esc(Number(m.rating).toFixed(1))}</span>` : ''}
         <span class="tag" data-sec="${esc(section)}">${esc(section)}</span>
         <div class="links-group">${linksHtml}</div>
         ${adminBtns}
@@ -438,95 +410,227 @@ function esc(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-/* ── TMDB Integration ── */
-const TMDB_KEY = (window.APP_CONFIG && window.APP_CONFIG.TMDB_API_KEY) || '';
-const TMDB_IMG = 'https://image.tmdb.org/t/p/w154';
-
-async function searchTMDB() {
-  const query = document.getElementById('newName').value.trim();
-  const resultsEl = document.getElementById('tmdbResults');
-  const btn = document.getElementById('tmdbBtn');
-
-  if (!query) {
-    toast('❌ Pehle naam likho', true);
-    return;
+/* ── Random Pick ── */
+function randomPick() {
+  const pool = visible.length ? visible : all;
+  if (!pool.length) return toast('❌ List empty hai', true);
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+  const row  = document.querySelector(`.row[data-id="${CSS.escape(String(pick.id))}"]`);
+  if (row) {
+    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    row.classList.remove('random-pick');
+    void row.offsetWidth;
+    row.classList.add('random-pick');
+    setTimeout(() => row.classList.remove('random-pick'), 2000);
   }
-  if (!TMDB_KEY) {
-    toast('❌ TMDB API key configure nahi hai', true);
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Searching...';
-  resultsEl.innerHTML = '';
-
-  try {
-    const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}&include_adult=false`);
-    const data = await res.json();
-    const results = (data.results || [])
-      .filter(r => (r.media_type === 'movie' || r.media_type === 'tv') && r.poster_path)
-      .slice(0, 6);
-
-    if (!results.length) {
-      resultsEl.innerHTML = '<p class="tmdb-empty">Kuch nahi mila TMDB pe 😕</p>';
-    } else {
-      resultsEl.innerHTML = results.map(r => {
-        const title = r.title || r.name || 'Untitled';
-        const date  = r.release_date || r.first_air_date || '';
-        const year  = date ? date.slice(0, 4) : '';
-        const rating = r.vote_average ? r.vote_average.toFixed(1) : '';
-        return `
-          <div class="tmdb-card" onclick='selectTMDB(${JSON.stringify({
-            title, year, rating: r.vote_average || null, poster: r.poster_path
-          }).replace(/'/g, "&#39;")})'>
-            <img src="${TMDB_IMG}${esc(r.poster_path)}" alt="${esc(title)}" loading="lazy">
-            <div class="tmdb-card-info">
-              <span class="tmdb-card-title">${esc(title)}</span>
-              <span class="tmdb-card-meta">${esc(year)}${rating ? ' • ⭐ ' + esc(rating) : ''}</span>
-            </div>
-          </div>`;
-      }).join('');
-    }
-  } catch (e) {
-    toast('❌ TMDB search fail: ' + e.message, true);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '🎬 Fetch Poster & Info from TMDB';
-  }
+  toast(`🎲 ${pick.name}`);
 }
-
-function selectTMDB(item, silent) {
-  document.getElementById('newPosterPath').value = item.poster || '';
-  document.getElementById('newYear').value        = item.year || '';
-  document.getElementById('newRating').value      = item.rating || '';
-  document.getElementById('tmdbResults').innerHTML = '';
-
-  const preview = document.getElementById('tmdbPreview');
-  const img     = document.getElementById('tmdbPreviewImg');
-  const title   = document.getElementById('tmdbPreviewTitle');
-  const meta    = document.getElementById('tmdbPreviewMeta');
-
-  if (item.poster) {
-    img.src = TMDB_IMG + item.poster;
-    img.style.display = '';
-  } else {
-    img.style.display = 'none';
-  }
-  title.textContent = item.title || '';
-  meta.textContent  = [item.year, item.rating ? '⭐ ' + Number(item.rating).toFixed(1) : ''].filter(Boolean).join(' • ');
-  preview.style.display = 'flex';
-
-  if (!silent) toast('✅ Info fetch ho gaya!');
-}
-
-function clearTMDB() {
-  document.getElementById('newPosterPath').value = '';
-  document.getElementById('newYear').value        = '';
-  document.getElementById('newRating').value      = '';
-  document.getElementById('tmdbPreview').style.display = 'none';
-  document.getElementById('tmdbResults').innerHTML = '';
-}
-
 
 /* ── Modal: Add ── */
-        
+function openModal() {
+  if (!isAdmin) return toast('❌ Admin login required', true);
+  document.getElementById('editId').value           = '';
+  document.getElementById('modalTitle').textContent  = 'Add New Title';
+  document.getElementById('saveBtn').textContent     = 'Add to List';
+  document.getElementById('newName').value = '';
+  document.getElementById('newUrl').value  = '';
+  renderSectionSelect(sectionFilt !== 'all' ? sectionFilt : 'Movies');
+  document.getElementById('ov').classList.add('open');
+  setTimeout(() => document.getElementById('newName').focus(), 60);
+}
+
+/* ── Modal: Edit ── */
+function openEdit(id) {
+  if (!isAdmin) return toast('❌ Admin login required', true);
+  const movie = all.find(m => String(m.id) === String(id));
+  if (!movie)  return toast('❌ Movie nahi mili', true);
+  document.getElementById('editId').value            = String(id);
+  document.getElementById('newName').value           = movie.name || '';
+  document.getElementById('newUrl').value            = movie.url  || '';
+  renderSectionSelect(movie.section || 'Movies');
+  document.getElementById('modalTitle').textContent  = 'Edit Title';
+  document.getElementById('saveBtn').textContent     = 'Save Changes';
+  document.getElementById('ov').classList.add('open');
+  setTimeout(() => { const i = document.getElementById('newName'); i.focus(); i.select(); }, 60);
+}
+
+/* ── Modal: Close ── */
+function closeModal() {
+  document.getElementById('ov').classList.remove('open');
+}
+
+/* ── Save Movie ── */
+async function saveMovie() {
+  const nameInput    = document.getElementById('newName');
+  const urlInput     = document.getElementById('newUrl');
+  const sectionInput = document.getElementById('newSection');
+  const id           = document.getElementById('editId').value.trim();
+
+  const name    = nameInput.value.trim();
+  const url     = urlInput.value.trim() || null;
+  let   section = sectionInput ? sectionInput.value : 'Movies';
+
+  if (!name) {
+    nameInput.style.borderColor = 'var(--red)';
+    nameInput.focus();
+    setTimeout(() => { nameInput.style.borderColor = ''; }, 1200);
+    return;
+  }
+
+  if (!id && (!section || section === 'Movies')) section = detectSection(name);
+
+  // Duplicate Detection
+  if (!id) {
+    const nameLC  = name.toLowerCase();
+    const exact   = all.find(m => (m.name || '').toLowerCase() === nameLC);
+    const similar = !exact && all.find(m => {
+      const ex = (m.name || '').toLowerCase();
+      return ex.includes(nameLC) || nameLC.includes(ex);
+    });
+    const dup = exact || similar;
+    if (dup) {
+      const msg = exact
+        ? `⚠️ "${dup.name}" already list mein hai (${dup.section}).\n\nPhir bhi add karna hai?`
+        : `⚠️ Similar title mila: "${dup.name}" (${dup.section}).\n\nPhir bhi add karna hai?`;
+      if (!confirm(msg)) return;
+    }
+  }
+
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span>Saving...';
+
+  try {
+    if (id) {
+      if (!isAdmin) throw new Error('Admin login required');
+      const { data, error } = await db.rpc('admin_update_movie', {
+        p_id: id, p_name: name, p_url: url || '', p_section: section, p_password: adminPassword
+      });
+      if (error) throw error;
+      if (!data)  throw new Error('No row updated');
+      const idx = all.findIndex(m => String(m.id) === id);
+      if (idx !== -1) all[idx] = { ...all[idx], name, url, section };
+      toast('✅ Edit ho gaya!');
+    } else {
+      const { data, error } = await db.from('movies').insert({ name, url, section }).select().single();
+      if (error) throw error;
+      all.push({ ...data, section: data.section || 'Movies' });
+      renderSectionButtons();
+      toast('✅ Add ho gaya!');
+    }
+    closeModal();
+    render();
+  } catch (e) {
+    toast('❌ ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = id ? 'Save Changes' : 'Add to List';
+  }
+}
+
+/* ── Delete Movie ── */
+async function delMovie(id) {
+  if (!isAdmin) return toast('❌ Admin required', true);
+  if (!confirm('Ye title delete karna hai?')) return;
+  try {
+    const { error } = await db.rpc('admin_delete_movie', { p_id: id, p_password: adminPassword });
+    if (error) throw error;
+    all = all.filter(m => String(m.id) !== String(id));
+    delete allLinks[id];
+    renderSectionButtons();
+    render();
+    toast('🗑️ Delete ho gaya');
+  } catch (e) {
+    toast('❌ ' + e.message, true);
+  }
+}
+
+/* ── Links Manager ── */
+function openLinksMgr(id) {
+  if (!isAdmin) return toast('❌ Admin required', true);
+  const movie = all.find(m => String(m.id) === String(id));
+  if (!movie)  return toast('❌ Movie nahi mili', true);
+  document.getElementById('linksMgrTitle').textContent = `Links: ${movie.name}`;
+  document.getElementById('linksMgrOv').dataset.movieId = id;
+  renderLinksMgrList(id);
+  document.getElementById('newLinkLabel').value = '';
+  document.getElementById('newLinkUrl').value   = '';
+  document.getElementById('linksMgrOv').classList.add('open');
+}
+
+function closeLinksMgr() {
+  document.getElementById('linksMgrOv').classList.remove('open');
+}
+
+function renderLinksMgrList(id) {
+  const movieId = id || document.getElementById('linksMgrOv').dataset.movieId;
+  const links   = allLinks[movieId] || [];
+  const el      = document.getElementById('linksMgrList');
+  if (!links.length) { el.innerHTML = '<p class="lmgr-empty">Koi link nahi hai abhi.</p>'; return; }
+  el.innerHTML = links.map(lnk => `
+    <div class="lmgr-row" data-link-id="${esc(lnk.id)}">
+      <span class="lmgr-label">${esc(lnk.label)}</span>
+      <a  class="lmgr-url" href="${esc(lnk.url)}" target="_blank" rel="noopener">${esc(lnk.url)}</a>
+      <button class="del" onclick="deleteLink('${esc(lnk.id)}','${esc(movieId)}')">✕</button>
+    </div>`).join('');
+}
+
+async function addLink() {
+  const movieId = document.getElementById('linksMgrOv').dataset.movieId;
+  const label   = document.getElementById('newLinkLabel').value.trim() || 'Download';
+  const url     = document.getElementById('newLinkUrl').value.trim();
+  if (!url) return toast('❌ URL daalo', true);
+
+  const btn = document.getElementById('addLinkBtn');
+  btn.disabled = true;
+  try {
+    const { data, error } = await db.rpc('admin_add_link', {
+      p_movie_id: movieId, p_label: label, p_url: url, p_password: adminPassword
+    });
+    if (error) throw error;
+    if (!allLinks[movieId]) allLinks[movieId] = [];
+    allLinks[movieId].push({ id: data, movie_id: movieId, label, url, sort_order: allLinks[movieId].length });
+    document.getElementById('newLinkLabel').value = '';
+    document.getElementById('newLinkUrl').value   = '';
+    renderLinksMgrList(movieId);
+    render();
+    toast('✅ Link add ho gaya!');
+  } catch (e) {
+    toast('❌ ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function deleteLink(linkId, movieId) {
+  if (!confirm('Ye link delete karna hai?')) return;
+  try {
+    const { error } = await db.rpc('admin_delete_link', { p_link_id: linkId, p_password: adminPassword });
+    if (error) throw error;
+    if (allLinks[movieId]) allLinks[movieId] = allLinks[movieId].filter(l => String(l.id) !== String(linkId));
+    renderLinksMgrList(movieId);
+    render();
+    toast('🗑️ Link delete ho gaya');
+  } catch (e) {
+    toast('❌ ' + e.message, true);
+  }
+}
+
+/* ── Toast ── */
+function toast(msg, err) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className   = err ? 'show error' : 'show';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.className = ''; }, 2800);
+}
+
+/* ── Close overlay on bg click ── */
+document.querySelectorAll('.ov').forEach(ov => {
+  ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); });
+});
+
+/* ── Topbar scroll blur ── */
+window.addEventListener('scroll', () => {
+  document.querySelector('.topbar').classList.toggle('scrolled', window.scrollY > 10);
+}, { passive: true });
