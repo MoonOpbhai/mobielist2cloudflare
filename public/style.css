@@ -501,25 +501,34 @@ h1 {
 }
 .random-btn:active { transform: scale(0.92); }
 
-/* Dice — idle slow spin always on */
+/* Dice — idle face cycling (dots 1→2→3→4→5→6 loop) */
 @keyframes diceIdle {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-/* Dice — fast spin on click */
-@keyframes diceSpin {
-  0%   { transform: rotate(0deg)   scale(1); }
-  20%  { transform: rotate(90deg)  scale(1.22); }
-  50%  { transform: rotate(200deg) scale(1.18); }
-  80%  { transform: rotate(310deg) scale(1.08); }
-  100% { transform: rotate(360deg) scale(1); }
+  0%,  16% { opacity: 1; }
+  17%, 100% { opacity: 0; }
 }
 
 .random-btn { perspective: none; }
 .random-btn .dice-svg {
   display: block;
   transform-origin: center center;
-  animation: diceIdle 4s linear infinite;
+}
+
+/* All faces hidden by default in idle, JS controls on click */
+/* Idle: cycle through faces with CSS */
+.random-btn:not(.rolling) .dice-f1 { display: block; animation: diceIdle 1.8s 0.0s linear infinite; }
+.random-btn:not(.rolling) .dice-f2 { display: block; animation: diceIdle 1.8s 0.3s linear infinite; }
+.random-btn:not(.rolling) .dice-f3 { display: block; animation: diceIdle 1.8s 0.6s linear infinite; }
+.random-btn:not(.rolling) .dice-f4 { display: block; animation: diceIdle 1.8s 0.9s linear infinite; }
+.random-btn:not(.rolling) .dice-f5 { display: block; animation: diceIdle 1.8s 1.2s linear infinite; }
+.random-btn:not(.rolling) .dice-f6 { display: block; animation: diceIdle 1.8s 1.5s linear infinite; }
+
+/* Fast spin on click */
+@keyframes diceSpin {
+  0%   { transform: rotate(0deg)   scale(1); }
+  20%  { transform: rotate(90deg)  scale(1.22); }
+  50%  { transform: rotate(200deg) scale(1.18); }
+  80%  { transform: rotate(310deg) scale(1.08); }
+  100% { transform: rotate(360deg) scale(1); }
 }
 .random-btn.rolling .dice-svg {
   animation: diceSpin 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
