@@ -461,18 +461,26 @@ function animateDice(duration) {
   const show = (i) => {
     faces.forEach((f, idx) => f.style.display = idx === i ? '' : 'none');
   };
-  // Rapid cycling
-  _diceInterval && clearInterval(_diceInterval);
-  _diceInterval = setInterval(() => {
+  _diceInterval && clearTimeout(_diceInterval);
+
+  // Face cycling: fast at start (60ms), slows down as dice settles
+  const totalFrames = 10;
+  let frame = 0;
+  const scheduleNext = () => {
+    if (frame >= totalFrames) {
+      show(Math.floor(Math.random() * 6));
+      _diceInterval = null;
+      return;
+    }
+    // Speed: starts at 50ms, ends at 130ms (easing out)
+    const progress = frame / totalFrames;
+    const delay = 50 + progress * progress * 130;
     current = (current + 1) % 6;
     show(current);
-  }, 80);
-  // Stop after duration, land on random face
-  setTimeout(() => {
-    clearInterval(_diceInterval);
-    _diceInterval = null;
-    show(Math.floor(Math.random() * 6));
-  }, duration);
+    frame++;
+    _diceInterval = setTimeout(scheduleNext, delay);
+  };
+  scheduleNext();
 }
 
 function randomPick() {
@@ -486,13 +494,13 @@ function randomPick() {
     btn.style.borderColor = 'rgba(245,200,75,0.6)';
     btn.style.color = 'var(--accent)';
     btn.classList.add('rolling');
-    animateDice(700);
+    animateDice(750);
     setTimeout(() => {
       btn.style.pointerEvents = '';
       btn.style.borderColor = '';
       btn.style.color = '';
       btn.classList.remove('rolling');
-    }, 720);
+    }, 780);
   }
 
   const pick = pool[Math.floor(Math.random() * pool.length)];
