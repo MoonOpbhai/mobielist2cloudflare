@@ -501,13 +501,17 @@ h1 {
 }
 .random-btn:active { transform: scale(0.92); }
 
-/* Dice spin — 2D rotation that works on SVG */
+/* Dice — idle slow spin always on */
+@keyframes diceIdle {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+/* Dice — fast spin on click */
 @keyframes diceSpin {
   0%   { transform: rotate(0deg)   scale(1); }
-  20%  { transform: rotate(72deg)  scale(1.2); }
-  40%  { transform: rotate(144deg) scale(1.15); }
-  60%  { transform: rotate(216deg) scale(1.1); }
-  80%  { transform: rotate(288deg) scale(1.05); }
+  20%  { transform: rotate(90deg)  scale(1.22); }
+  50%  { transform: rotate(200deg) scale(1.18); }
+  80%  { transform: rotate(310deg) scale(1.08); }
   100% { transform: rotate(360deg) scale(1); }
 }
 
@@ -515,9 +519,10 @@ h1 {
 .random-btn .dice-svg {
   display: block;
   transform-origin: center center;
+  animation: diceIdle 4s linear infinite;
 }
 .random-btn.rolling .dice-svg {
-  animation: diceSpin 0.75s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: diceSpin 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 @keyframes randomHighlight {
