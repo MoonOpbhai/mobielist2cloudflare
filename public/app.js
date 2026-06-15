@@ -10,7 +10,7 @@ let allLinks      = {};
 let allSections   = [];
 let filt          = 'all';
 let sectionFilt   = 'all';
-let sortOrder     = 'newest';
+let sortOrder     = 'oldest';
 let visible       = [];
 let adminPassword = sessionStorage.getItem('movie_admin_password') || '';
 let isAdmin       = adminPassword === 'Amonchand111';
@@ -431,19 +431,61 @@ function toggleSortMenu() {
 }
 
 /* ── Random Pick ── */
+let _diceInterval = null;
+
+function animateDice(duration) {
+  const faces = document.querySelectorAll('.dice-face');
+  if (!faces.length) return;
+  let current = 0;
+  const show = (i) => {
+    faces.forEach((f, idx) => f.style.display = idx === i ? '' : 'none');
+  };
+  // Rapid cycling
+  _diceInterval && clearInterval(_diceInterval);
+  _diceInterval = setInterval(() => {
+    current = (current + 1) % 6;
+    show(current);
+  }, 80);
+  // Stop after duration, land on random face
+  setTimeout(() => {
+    clearInterval(_diceInterval);
+    _diceInterval = null;
+    show(Math.floor(Math.random() * 6));
+  }, duration);
+}
+
 function randomPick() {
   const pool = visible.length ? visible : all;
   if (!pool.length) return toast('❌ List empty hai', true);
-  const pick = pool[Math.floor(Math.random() * pool.length)];
-  const row  = document.querySelector(`.row[data-id="${CSS.escape(String(pick.id))}"]`);
-  if (row) {
-    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    row.classList.remove('random-pick');
-    void row.offsetWidth;
-    row.classList.add('random-pick');
-    setTimeout(() => row.classList.remove('random-pick'), 2000);
+
+  // Animate dice
+  const btn = document.querySelector('.random-btn');
+  if (btn) {
+    btn.style.pointerEvents = 'none';
+    btn.style.borderColor = 'rgba(245,200,75,0.6)';
+    btn.style.color = 'var(--accent)';
+    btn.classList.add('rolling');
+    animateDice(700);
+    setTimeout(() => {
+      btn.style.pointerEvents = '';
+      btn.style.borderColor = '';
+      btn.style.color = '';
+      btn.classList.remove('rolling');
+    }, 720);
   }
-  toast(`🎲 ${pick.name}`);
+
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+  setTimeout(() => {
+    const row = document.querySelector(`.row[data-id="${CSS.escape(String(pick.id))}"]`);
+    if (row) {
+      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      row.classList.remove('random-pick');
+      void row.offsetWidth;
+      row.classList.add('random-pick');
+      setTimeout(() => row.classList.remove('random-pick'), 2000);
+    }
+    toast(`🎲 ${pick.name}`);
+  }, 720);
 }
 
 /* ── Modal: Add ── */
