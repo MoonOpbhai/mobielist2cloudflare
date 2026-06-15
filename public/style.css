@@ -688,7 +688,7 @@ main {
   font-family: "Bebas Neue", sans-serif;
   font-size: 1rem;
   color: #ffffff;
-  min-width: 40px;
+  min-width: 0;
   text-align: right;
   flex-shrink: 0;
   letter-spacing: 0.5px;
@@ -1156,6 +1156,12 @@ main {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+.spin-blossom {
+  display: inline-block;
+  animation: spin 3s linear infinite;
+  transform-origin: center;
+}
+
 /* ══════════════════════════════════
    TOAST
 ══════════════════════════════════ */
@@ -1219,7 +1225,7 @@ main {
   main { padding: 16px 10px 64px; }
 
   .row { gap: 7px; padding: 11px 10px; border-radius: var(--radius-sm); }
-  .num { min-width: 32px; font-size: 0.9rem; }
+  .num { min-width: 0; font-size: 0.9rem; }
   .name { font-size: 0.88rem; }
   .tag { display: none; }
   .year, .rating { display: none; }
