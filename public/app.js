@@ -35,6 +35,7 @@ async function init() {
     updateAdminButton();
     setupEventListeners();
     render();
+    startDiceIdle();
   } catch (e) {
     document.getElementById('loading').innerHTML =
       '<span class="state-icon">❌</span><span>Load nahi hua: ' + e.message + '</span>';
@@ -453,15 +454,41 @@ function toggleSortMenu() {
 
 /* ── Random Pick ── */
 let _diceInterval = null;
+let _diceIdleInterval = null;
 
-function animateDice(duration) {
+/* ── Dice idle cycling — always running ── */
+function startDiceIdle() {
   const faces = document.querySelectorAll('.dice-face');
   if (!faces.length) return;
   let current = 0;
   const show = (i) => {
-    faces.forEach((f, idx) => {
-      f.style.display = idx === i ? 'block' : 'none';
-    });
+    faces.forEach((f, idx) => f.style.display = idx === i ? '' : 'none');
+  };
+  show(0);
+  _diceIdleInterval = setInterval(() => {
+    current = (current + 1) % 6;
+    show(current);
+  }, 500);
+}
+
+function stopDiceIdle() {
+  clearInterval(_diceIdleInterval);
+  _diceIdleInterval = null;
+}
+
+function resumeDiceIdle() {
+  stopDiceIdle();
+  // small delay so it doesn't immediately restart mid-animation
+  setTimeout(startDiceIdle, 200);
+}
+
+function animateDice() {
+  stopDiceIdle();
+  const faces = document.querySelectorAll('.dice-face');
+  if (!faces.length) return;
+  let current = 0;
+  const show = (i) => {
+    faces.forEach((f, idx) => f.style.display = idx === i ? '' : 'none');
   };
   _diceInterval && clearTimeout(_diceInterval);
 
@@ -469,9 +496,8 @@ function animateDice(duration) {
   let frame = 0;
   const scheduleNext = () => {
     if (frame >= totalFrames) {
-      // Done — clear inline styles so CSS idle animation takes back over
-      faces.forEach(f => f.style.display = '');
       _diceInterval = null;
+      resumeDiceIdle();
       return;
     }
     const progress = frame / totalFrames;
@@ -495,7 +521,7 @@ function randomPick() {
     btn.style.borderColor = 'rgba(245,200,75,0.6)';
     btn.style.color = 'var(--accent)';
     btn.classList.add('rolling');
-    animateDice(750);
+    animateDice();
     setTimeout(() => {
       btn.style.pointerEvents = '';
       btn.style.borderColor = '';
