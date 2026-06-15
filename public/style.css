@@ -364,58 +364,86 @@ h1 {
 }
 
 /* ── Sort dropdown ── */
-.sort-wrap { display: flex; }
-#sortBy {
-  background: var(--surface);
+/* ── Sort icon button + dropdown ── */
+.sort-icon-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.sort-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
   border: 1px solid var(--border);
+  background: var(--surface);
   color: #d0d0e8;
-  font-family: "DM Sans", sans-serif;
-  font-size: 0.74rem;
-  font-weight: 800;
-  padding: 10px 13px;
-  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s, color 0.15s;
-  white-space: nowrap;
-  letter-spacing: 0.3px;
-  outline: none;
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23d0d0e8' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 28px;
+  padding: 0;
 }
-#sortBy:hover {
-  background-color: var(--surface2);
-  border-color: var(--border2);
-  color: #ffffff;
+.sort-icon-btn:hover,
+.sort-icon-btn.active {
+  background: var(--surface2);
+  border-color: rgba(245,200,75,0.5);
+  color: var(--accent);
 }
-#sortBy option {
-  background: #14101f;
-  color: #e0e0f0;
-}
-
-/* ── Random pick button ── */
-.random-btn {
-  background: var(--surface);
+.sort-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #1a1230;
   border: 1px solid var(--border);
-  color: #d0d0e8;
-  font-size: 1.05rem;
-  padding: 9px 13px;
   border-radius: var(--radius-sm);
+  overflow: hidden;
+  z-index: 200;
+  min-width: 140px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+.sort-dropdown.open { display: block; }
+.sort-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  color: #c0c0d8;
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s;
-  line-height: 1;
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+.sort-opt:hover { background: rgba(255,255,255,0.06); color: #fff; }
+.sort-opt.active { color: var(--accent); background: rgba(245,200,75,0.08); }
+
+/* ── Random / Dice button ── */
+.random-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: #d0d0e8;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
 }
 .random-btn:hover {
   background: var(--surface2);
-  border-color: var(--border2);
-  color: #ffffff;
-  transform: scale(1.08) rotate(-8deg);
+  border-color: rgba(245,200,75,0.5);
+  color: var(--accent);
 }
-.random-btn:active {
-  transform: scale(0.95);
+.random-btn:active svg {
+  animation: spin 0.5s linear;
 }
 
 @keyframes randomHighlight {
@@ -1172,7 +1200,7 @@ main {
   .filter-tabs { width: 100%; }
   .fb { flex: 1; text-align: center; padding: 9px 6px; font-size: 0.7rem; }
   .sort-wrap { flex: 1; }
-  #sortBy { width: 100%; text-align: center; }
+  .sort-icon-btn { flex-shrink: 0; }
   .random-btn { flex-shrink: 0; }
 
   .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
