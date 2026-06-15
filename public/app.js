@@ -426,8 +426,28 @@ function esc(s) {
 function toggleSortMenu() {
   const menu = document.getElementById('sortMenu');
   const btn  = document.getElementById('sortIconBtn');
-  const open = menu.classList.toggle('open');
-  btn.classList.toggle('active', open);
+  const isOpen = menu.classList.contains('open');
+
+  if (isOpen) {
+    menu.classList.remove('open');
+    btn.classList.remove('active');
+    return;
+  }
+
+  // Position using fixed coords
+  const rect = btn.getBoundingClientRect();
+  const menuW = 155;
+  let left = rect.left + rect.width / 2 - menuW / 2;
+  // Keep inside screen
+  if (left < 8) left = 8;
+  if (left + menuW > window.innerWidth - 8) left = window.innerWidth - menuW - 8;
+
+  menu.style.top  = (rect.bottom + 8) + 'px';
+  menu.style.left = left + 'px';
+  menu.style.width = menuW + 'px';
+
+  menu.classList.add('open');
+  btn.classList.add('active');
 }
 
 /* ── Random Pick ── */
