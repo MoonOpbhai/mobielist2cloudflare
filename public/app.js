@@ -57,14 +57,26 @@ function setupEventListeners() {
     });
   });
 
-  // Sort
-  const sortEl = document.getElementById('sortBy');
-  if (sortEl) {
-    sortEl.addEventListener('change', e => {
-      sortOrder = e.target.value;
+  // Sort dropdown
+  document.querySelectorAll('.sort-opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.sort-opt').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      sortOrder = btn.dataset.sort;
+      document.getElementById('sortMenu').classList.remove('open');
+      document.getElementById('sortIconBtn').classList.remove('active');
       render();
     });
-  }
+  });
+
+  // Close sort menu on outside click
+  document.addEventListener('click', e => {
+    const wrap = document.querySelector('.sort-icon-wrap');
+    if (wrap && !wrap.contains(e.target)) {
+      document.getElementById('sortMenu').classList.remove('open');
+      document.getElementById('sortIconBtn').classList.remove('active');
+    }
+  });
 }
 
 /* ── Fetch ── */
@@ -410,6 +422,14 @@ function esc(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
+/* ── Sort Menu Toggle ── */
+function toggleSortMenu() {
+  const menu = document.getElementById('sortMenu');
+  const btn  = document.getElementById('sortIconBtn');
+  const open = menu.classList.toggle('open');
+  btn.classList.toggle('active', open);
+}
+
 /* ── Random Pick ── */
 function randomPick() {
   const pool = visible.length ? visible : all;
@@ -428,7 +448,6 @@ function randomPick() {
 
 /* ── Modal: Add ── */
 function openModal() {
-  if (!isAdmin) return toast('❌ Admin login required', true);
   document.getElementById('editId').value           = '';
   document.getElementById('modalTitle').textContent  = 'Add New Title';
   document.getElementById('saveBtn').textContent     = 'Add to List';
