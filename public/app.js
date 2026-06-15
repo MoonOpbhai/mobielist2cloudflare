@@ -459,20 +459,21 @@ function animateDice(duration) {
   if (!faces.length) return;
   let current = 0;
   const show = (i) => {
-    faces.forEach((f, idx) => f.style.display = idx === i ? '' : 'none');
+    faces.forEach((f, idx) => {
+      f.style.display = idx === i ? 'block' : 'none';
+    });
   };
   _diceInterval && clearTimeout(_diceInterval);
 
-  // Face cycling: fast at start (60ms), slows down as dice settles
   const totalFrames = 10;
   let frame = 0;
   const scheduleNext = () => {
     if (frame >= totalFrames) {
-      show(Math.floor(Math.random() * 6));
+      // Done — clear inline styles so CSS idle animation takes back over
+      faces.forEach(f => f.style.display = '');
       _diceInterval = null;
       return;
     }
-    // Speed: starts at 50ms, ends at 130ms (easing out)
     const progress = frame / totalFrames;
     const delay = 50 + progress * progress * 130;
     current = (current + 1) % 6;
