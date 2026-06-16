@@ -383,7 +383,7 @@ h1 {
   color: #ffffff;
   font-family: "DM Sans", sans-serif;
   font-size: 0.92rem;
-  padding: 11px 14px 11px 40px;
+  padding: 11px 38px 11px 40px;
   border-radius: var(--radius-sm);
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
@@ -394,6 +394,30 @@ h1 {
   background: rgba(255,255,255,0.08);
 }
 #search::placeholder { color: var(--muted); }
+
+.search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.08);
+  color: var(--muted);
+  font-size: 0.7rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s, transform 0.15s;
+}
+.search-clear:hover {
+  background: rgba(255,92,114,0.18);
+  color: var(--red);
+  transform: translateY(-50%) scale(1.1);
+}
 
 /* ── Filter tabs ── */
 .filter-tabs {
@@ -724,6 +748,69 @@ main {
   text-transform: uppercase;
   color: #c0c0d8;
 }
+
+/* ── Skeleton loading rows ── */
+@keyframes skeletonShimmer {
+  0%   { background-position: -300px 0; }
+  100% { background-position: 300px 0; }
+}
+.skeleton-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+/* If JS injects a plain error/state message instead of skeleton rows */
+.skeleton-wrap:has(.state-icon) {
+  align-items: center;
+  text-align: center;
+  padding: 72px 20px;
+  color: #c0c0d8;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+.skeleton-wrap .state-icon { font-size: 2.4rem; opacity: 0.7; margin-bottom: 12px; display: block; }
+.skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.07);
+}
+.skel-thumb {
+  width: 32px;
+  height: 46px;
+  flex-shrink: 0;
+  border-radius: 6px;
+}
+.skel-line {
+  height: 14px;
+  border-radius: 6px;
+  flex: 1;
+}
+.skel-tag {
+  width: 64px;
+  height: 20px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.skel-thumb, .skel-line, .skel-tag {
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.04) 0%,
+    rgba(255,255,255,0.10) 50%,
+    rgba(255,255,255,0.04) 100%);
+  background-size: 600px 100%;
+  animation: skeletonShimmer 1.6s ease-in-out infinite;
+}
+/* Stagger shimmer slightly per row for a wave feel */
+.skeleton-row:nth-child(2)  { animation-delay: 0.05s; }
+.skeleton-row:nth-child(3)  { animation-delay: 0.1s; }
+.skeleton-row:nth-child(4)  { animation-delay: 0.15s; }
+.skeleton-row:nth-child(5)  { animation-delay: 0.2s; }
+.skeleton-row:nth-child(6)  { animation-delay: 0.25s; }
+.skeleton-row:nth-child(7)  { animation-delay: 0.3s; }
+.skeleton-row:nth-child(8)  { animation-delay: 0.35s; }
 
 /* ── State messages ── */
 .state-msg {
