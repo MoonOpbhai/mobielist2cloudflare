@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MOON LIST — Cinema Vault</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,900;1,9..40,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=moon-ui-v21">
+  <link rel="stylesheet" href="./style.css?v=moon-ui-v22">
 </head>
 <body>
 
@@ -62,29 +62,29 @@
           <svg class="dice-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="2" y="2" width="20" height="20" rx="4" ry="4" stroke="currentColor" stroke-width="1.8"/>
             <!-- Face 1: center -->
-            <g class="dice-face dice-f1">
+            <g class="dice-face dice-f1" style="opacity:1">
               <circle cx="12" cy="12" r="1.6" fill="currentColor"/>
             </g>
             <!-- Face 2: top-left, bottom-right -->
-            <g class="dice-face dice-f2" style="display:none">
+            <g class="dice-face dice-f2" style="opacity:0">
               <circle cx="8"  cy="8"  r="1.4" fill="currentColor"/>
               <circle cx="16" cy="16" r="1.4" fill="currentColor"/>
             </g>
             <!-- Face 3: top-right, center, bottom-left -->
-            <g class="dice-face dice-f3" style="display:none">
+            <g class="dice-face dice-f3" style="opacity:0">
               <circle cx="16" cy="7"  r="1.4" fill="currentColor"/>
               <circle cx="12" cy="12" r="1.4" fill="currentColor"/>
               <circle cx="8"  cy="17" r="1.4" fill="currentColor"/>
             </g>
             <!-- Face 4: four corners -->
-            <g class="dice-face dice-f4" style="display:none">
+            <g class="dice-face dice-f4" style="opacity:0">
               <circle cx="8"  cy="8"  r="1.4" fill="currentColor"/>
               <circle cx="16" cy="8"  r="1.4" fill="currentColor"/>
               <circle cx="8"  cy="16" r="1.4" fill="currentColor"/>
               <circle cx="16" cy="16" r="1.4" fill="currentColor"/>
             </g>
             <!-- Face 5: four corners + center -->
-            <g class="dice-face dice-f5" style="display:none">
+            <g class="dice-face dice-f5" style="opacity:0">
               <circle cx="8"  cy="8"  r="1.4" fill="currentColor"/>
               <circle cx="16" cy="8"  r="1.4" fill="currentColor"/>
               <circle cx="12" cy="12" r="1.4" fill="currentColor"/>
@@ -92,7 +92,7 @@
               <circle cx="16" cy="16" r="1.4" fill="currentColor"/>
             </g>
             <!-- Face 6: two columns of 3 -->
-            <g class="dice-face dice-f6" style="display:none">
+            <g class="dice-face dice-f6" style="opacity:0">
               <circle cx="8"  cy="7"  r="1.4" fill="currentColor"/>
               <circle cx="16" cy="7"  r="1.4" fill="currentColor"/>
               <circle cx="8"  cy="12" r="1.4" fill="currentColor"/>
@@ -217,7 +217,7 @@
   <div id="toast"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./config.js?v=moon-ui-v21"></script>
-  <script src="./app.js?v=moon-ui-v21"></script>
+  <script src="./config.js?v=moon-ui-v22"></script>
+  <script src="./app.js?v=moon-ui-v22"></script>
 </body>
 </html>
