@@ -16,6 +16,18 @@ let adminPassword = sessionStorage.getItem('movie_admin_password') || '';
 let isAdmin       = adminPassword === 'Amonchand111';
 
 /* ── Boot ── */
+function renderSkeleton(count) {
+  const wrap = document.getElementById('loading');
+  if (!wrap) return;
+  wrap.innerHTML = Array.from({ length: count }).map(() => `
+    <div class="skeleton-row">
+      <div class="skel-thumb"></div>
+      <div class="skel-line" style="max-width:${40 + Math.random()*40}%"></div>
+      <div class="skel-tag"></div>
+    </div>`).join('');
+}
+renderSkeleton(8);
+
 if (SUPABASE_URL.includes('PASTE_') || SUPABASE_ANON_KEY.includes('PASTE_')) {
   document.getElementById('loading').innerHTML =
     '<span class="state-icon">❌</span><span>Supabase config missing.</span>';
@@ -50,9 +62,31 @@ async function init() {
 }
 
 /* ── Event Listeners ── */
+function debounce(fn, delay) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), delay);
+  };
+}
+
 function setupEventListeners() {
-  // Search
-  document.getElementById('search').addEventListener('input', render);
+  // Search — debounced so render doesn't fire on every single keystroke
+  const searchInput = document.getElementById('search');
+  const searchClear  = document.getElementById('searchClear');
+  const debouncedRender = debounce(render, 180);
+
+  searchInput.addEventListener('input', () => {
+    searchClear.style.display = searchInput.value ? 'flex' : 'none';
+    debouncedRender();
+  });
+
+  searchClear.addEventListener('click', () => {
+    searchInput.value = '';
+    searchClear.style.display = 'none';
+    searchInput.focus();
+    render();
+  });
 
   // Filter tabs (All / Links / No Link)
   document.querySelectorAll('.fb').forEach(btn => {
