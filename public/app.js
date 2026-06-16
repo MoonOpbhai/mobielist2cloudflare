@@ -1,4 +1,4 @@
-/* app.js — moon-ui v3 — OPTIMIZED: cache + retry + virtual render */
+/* app.js — moon-ui v3 */
 
 const cfg = window.APP_CONFIG || {};
 const SUPABASE_URL      = cfg.SUPABASE_URL      || 'PASTE_SUPABASE_URL_HERE';
@@ -15,14 +15,6 @@ let visible       = [];
 let adminPassword = sessionStorage.getItem('movie_admin_password') || '';
 let isAdmin       = adminPassword === 'Amonchand111';
 
-/* ── Cache config ── */
-const CACHE_KEY = 'mmf_data_v1';
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-
-/* ── Virtual render config ── */
-const PAGE_SIZE = 30;
-let renderOffset = 0;
-
 /* ── Boot ── */
 if (SUPABASE_URL.includes('PASTE_') || SUPABASE_ANON_KEY.includes('PASTE_')) {
   document.getElementById('loading').innerHTML =
@@ -35,27 +27,7 @@ if (SUPABASE_URL.includes('PASTE_') || SUPABASE_ANON_KEY.includes('PASTE_')) {
 /* ── Init ── */
 async function init() {
   try {
-    // Try loading from cache first (instant)
-    const cacheLoaded = tryLoadCache();
-
-    if (!cacheLoaded) {
-      // No cache — show loader and fetch
-      await fetchAllData();
-    } else {
-      // Cache hit — render instantly, then refresh in background silently
-      document.getElementById('loading').style.display = 'none';
-      renderSectionButtons();
-      initSectionBarArrows();
-      renderSectionSelect();
-      updateAdminButton();
-      setupEventListeners();
-      render();
-      startDiceIdle();
-      // Background refresh (no loader)
-      fetchAllData(true).catch(() => {});
-      return;
-    }
-
+    await Promise.all([loadMovies(), loadSections(), loadLinks()]);
     document.getElementById('loading').style.display = 'none';
     renderSectionButtons();
     initSectionBarArrows();
@@ -71,87 +43,12 @@ async function init() {
   }
 }
 
-/* ── Cache helpers ── */
-function tryLoadCache() {
-  try {
-    const raw = sessionStorage.getItem(CACHE_KEY);
-    if (!raw) return false;
-    const { data, ts } = JSON.parse(raw);
-    if (!data || Date.now() - ts > CACHE_TTL) return false;
-    all        = data.movies  || [];
-    allSections= data.sections|| [];
-    allLinks   = data.links   || {};
-    return true;
-  } catch(e) { return false; }
-}
-
-function saveCache() {
-  try {
-    sessionStorage.setItem(CACHE_KEY, JSON.stringify({
-      data: { movies: all, sections: allSections, links: allLinks },
-      ts: Date.now()
-    }));
-  } catch(e) {}
-}
-
-function clearCache() {
-  try { sessionStorage.removeItem(CACHE_KEY); } catch(e) {}
-}
-
-/* ── Fetch with retry ── */
-async function fetchAllData(silent = false) {
-  if (!silent) {
-    document.getElementById('loading').style.display = 'flex';
-    document.getElementById('loading').innerHTML =
-      '<span class="state-icon">🎬</span><span>Loading vault...</span>';
-  }
-
-  // Fetch all 3 tables in parallel with retry
-  const [movies, sections, links] = await Promise.all([
-    fetchWithRetry(() => db.from('movies').select('id,name,url,section,created_at').order('created_at', { ascending: true })),
-    fetchWithRetry(() => db.from('sections').select('id,name,sort_order').order('sort_order', { ascending: true })),
-    fetchWithRetry(() => db.from('movie_links').select('id,movie_id,label,url,sort_order').order('sort_order', { ascending: true }))
-  ]);
-
-  all         = (movies  || []).map(m => ({ ...m, section: m.section || 'Movies' }));
-  allSections = sections || [];
-
-  allLinks = {};
-  (links || []).forEach(lnk => {
-    if (!allLinks[lnk.movie_id]) allLinks[lnk.movie_id] = [];
-    allLinks[lnk.movie_id].push(lnk);
-  });
-
-  saveCache();
-
-  if (silent) {
-    // Just re-render with fresh data
-    renderSectionButtons();
-    render();
-  }
-}
-
-async function fetchWithRetry(queryFn, retries = 3) {
-  let lastErr;
-  for (let i = 0; i < retries; i++) {
-    try {
-      const { data, error } = await queryFn();
-      if (error) throw error;
-      return data;
-    } catch(e) {
-      lastErr = e;
-      if (i < retries - 1) await sleep(500 * (i + 1));
-    }
-  }
-  throw lastErr;
-}
-
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
 /* ── Event Listeners ── */
 function setupEventListeners() {
-  document.getElementById('search').addEventListener('input', () => { render(); });
+  // Search
+  document.getElementById('search').addEventListener('input', render);
 
+  // Filter tabs (All / Links / No Link)
   document.querySelectorAll('.fb').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.fb').forEach(b => b.classList.remove('active'));
@@ -161,6 +58,7 @@ function setupEventListeners() {
     });
   });
 
+  // Sort dropdown
   document.querySelectorAll('.sort-opt').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.sort-opt').forEach(b => b.classList.remove('active'));
@@ -172,6 +70,7 @@ function setupEventListeners() {
     });
   });
 
+  // Close sort menu on outside click
   document.addEventListener('click', e => {
     const wrap = document.querySelector('.sort-icon-wrap');
     if (wrap && !wrap.contains(e.target)) {
@@ -179,12 +78,38 @@ function setupEventListeners() {
       document.getElementById('sortIconBtn').classList.remove('active');
     }
   });
+}
 
-  // Load more button
-  const loadMoreBtn = document.getElementById('loadMoreBtn');
-  if (loadMoreBtn) {
-    loadMoreBtn.addEventListener('click', renderMore);
-  }
+/* ── Fetch ── */
+async function loadMovies() {
+  const { data, error } = await db
+    .from('movies')
+    .select('id,name,url,section,created_at')
+    .order('created_at', { ascending: true });
+  if (error) throw error;
+  all = (data || []).map(m => ({ ...m, section: m.section || 'Movies' }));
+}
+
+async function loadSections() {
+  const { data, error } = await db
+    .from('sections')
+    .select('id,name,sort_order')
+    .order('sort_order', { ascending: true });
+  if (error) throw error;
+  allSections = data || [];
+}
+
+async function loadLinks() {
+  const { data, error } = await db
+    .from('movie_links')
+    .select('id,movie_id,label,url,sort_order')
+    .order('sort_order', { ascending: true });
+  if (error) throw error;
+  allLinks = {};
+  (data || []).forEach(lnk => {
+    if (!allLinks[lnk.movie_id]) allLinks[lnk.movie_id] = [];
+    allLinks[lnk.movie_id].push(lnk);
+  });
 }
 
 /* ── Admin ── */
@@ -337,7 +262,6 @@ async function saveEditSection(id, oldName) {
     if (!data)  throw new Error('Rename fail — admin check karo');
     allSections = allSections.map(s => s.id === id ? { ...s, name: newName } : s);
     all = all.map(m => m.section === oldName ? { ...m, section: newName } : m);
-    clearCache(); saveCache();
     renderSectionMgrList();
     renderSectionButtons();
     renderSectionSelect();
@@ -357,7 +281,6 @@ async function moveSection(idx, dir) {
     p_id: s.id, p_sort_order: i + 1, p_password: adminPassword
   }));
   await Promise.all(updates).catch(e => toast('❌ Order save nahi hua: ' + e.message, true));
-  clearCache(); saveCache();
   renderSectionMgrList();
   renderSectionButtons();
 }
@@ -374,8 +297,7 @@ async function addSection() {
     const { error } = await db.rpc('admin_add_section', { p_name: name, p_password: adminPassword });
     if (error) throw error;
     inp.value = '';
-    await fetchWithRetry(() => db.from('sections').select('id,name,sort_order').order('sort_order', { ascending: true })).then(d => { allSections = d || []; });
-    clearCache(); saveCache();
+    await Promise.all([loadSections()]);
     renderSectionMgrList();
     renderSectionButtons();
     renderSectionSelect();
@@ -394,8 +316,7 @@ async function deleteSection(name) {
   try {
     const { error } = await db.rpc('admin_delete_section', { p_name: name, p_password: adminPassword });
     if (error) throw error;
-    await fetchAllData(true);
-    clearCache(); saveCache();
+    await Promise.all([loadMovies(), loadSections()]);
     renderSectionMgrList();
     renderSectionButtons();
     renderSectionSelect();
@@ -421,7 +342,7 @@ function detectSection(name) {
 }
 
 /* ── Render ── */
-function getFilteredSorted() {
+function render() {
   const q = (document.getElementById('search').value || '').toLowerCase().trim();
 
   let list = all.filter(m => {
@@ -435,6 +356,7 @@ function getFilteredSorted() {
     return okSearch && okSection;
   });
 
+  // Sort
   if (sortOrder === 'az') {
     list.sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' }));
   } else if (sortOrder === 'za') {
@@ -445,11 +367,7 @@ function getFilteredSorted() {
     list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   }
 
-  return list;
-}
-
-function render() {
-  visible = getFilteredSorted();
+  visible = list;
 
   document.getElementById('total').textContent       = all.length;
   document.getElementById('shown').textContent       = visible.length;
@@ -462,76 +380,43 @@ function render() {
   const nr  = document.getElementById('noRes');
   const lst = document.getElementById('list');
 
-  if (!visible.length) { lst.innerHTML = ''; nr.style.display = 'flex'; updateLoadMoreBtn(0, 0); return; }
+  if (!visible.length) { lst.innerHTML = ''; nr.style.display = 'flex'; return; }
   nr.style.display = 'none';
 
-  // Reset virtual render
-  renderOffset = 0;
-  lst.innerHTML = '';
-  renderMore();
-}
+  const globalNo = new Map(all.map((m, i) => [String(m.id), i + 1]));
 
-function renderMore() {
-  const lst   = document.getElementById('list');
-  const chunk = visible.slice(renderOffset, renderOffset + PAGE_SIZE);
+  lst.innerHTML = visible.map((m, idx) => {
+    const id      = String(m.id);
+    const num     = '';
+    const section = m.section || 'Movies';
+    // Only stagger first 18 rows — beyond that delay looks laggy
+    const delay   = idx < 18 ? idx * 0.022 : 0;
 
-  // Use DocumentFragment for batch DOM insert (faster)
-  const frag = document.createDocumentFragment();
-  chunk.forEach((m, idx) => {
-    const globalIdx = renderOffset + idx;
-    const el = buildRow(m, globalIdx);
-    frag.appendChild(el);
-  });
-  lst.appendChild(frag);
+    const links = allLinks[m.id] || [];
+    let linksHtml = '';
+    if (links.length > 0) {
+      linksHtml = links.map(lnk =>
+        `<a class="dl" href="${esc(lnk.url)}" target="_blank" rel="noopener noreferrer" title="${esc(lnk.label)}">↗ ${esc(lnk.label)}</a>`
+      ).join('');
+    } else if (m.url) {
+      linksHtml = `<a class="dl" href="${esc(m.url)}" target="_blank" rel="noopener noreferrer">↗ Open</a>`;
+    }
 
-  renderOffset += PAGE_SIZE;
-  updateLoadMoreBtn(renderOffset, visible.length);
-}
+    const adminBtns = isAdmin ? `
+      <button class="edit-btn"  onclick="openEdit('${esc(id)}')"     title="Edit">✎</button>
+      <button class="links-btn" onclick="openLinksMgr('${esc(id)}')" title="Manage Links">🔗</button>
+      <button class="del-btn"   onclick="delMovie('${esc(id)}')"     title="Delete">✕</button>` : '';
 
-function buildRow(m, idx) {
-  const div     = document.createElement('div');
-  const id      = String(m.id);
-  const section = m.section || 'Movies';
-  const delay   = idx < 20 ? idx * 0.022 : 0;
-
-  const links = allLinks[m.id] || [];
-  let linksHtml = '';
-  if (links.length > 0) {
-    linksHtml = links.map(lnk =>
-      `<a class="dl" href="${esc(lnk.url)}" target="_blank" rel="noopener noreferrer" title="${esc(lnk.label)}">↗ ${esc(lnk.label)}</a>`
-    ).join('');
-  } else if (m.url) {
-    linksHtml = `<a class="dl" href="${esc(m.url)}" target="_blank" rel="noopener noreferrer">↗ Open</a>`;
-  }
-
-  const adminBtns = isAdmin ? `
-    <button class="edit-btn"  onclick="openEdit('${esc(id)}')"     title="Edit">✎</button>
-    <button class="links-btn" onclick="openLinksMgr('${esc(id)}')" title="Manage Links">🔗</button>
-    <button class="del-btn"   onclick="delMovie('${esc(id)}')"     title="Delete">✕</button>` : '';
-
-  div.className = 'row';
-  div.dataset.id = id;
-  div.style.animationDelay = delay + 's';
-  div.innerHTML = `
-    <span class="num"></span>
-    <span class="dot"></span>
-    <span class="name">${esc(m.name)}</span>
-    <span class="tag" data-sec="${esc(section)}">${esc(section)}</span>
-    <div class="links-group">${linksHtml}</div>
-    ${adminBtns}`;
-  return div;
-}
-
-function updateLoadMoreBtn(offset, total) {
-  const btn = document.getElementById('loadMoreBtn');
-  if (!btn) return;
-  const remaining = total - offset;
-  if (remaining > 0) {
-    btn.style.display = 'block';
-    btn.textContent   = `⬇ Aur ${remaining} load karo`;
-  } else {
-    btn.style.display = 'none';
-  }
+    return `
+      <div class="row" data-id="${esc(id)}" style="animation-delay:${delay}s">
+        <span class="num">${num}</span>
+        <span class="dot"></span>
+        <span class="name">${esc(m.name)}</span>
+        <span class="tag" data-sec="${esc(section)}">${esc(section)}</span>
+        <div class="links-group">${linksHtml}</div>
+        ${adminBtns}
+      </div>`;
+  }).join('');
 }
 
 /* ── Escape ── */
@@ -551,9 +436,11 @@ function toggleSortMenu() {
     return;
   }
 
+  // Position using fixed coords
   const rect = btn.getBoundingClientRect();
   const menuW = 155;
   let left = rect.left + rect.width / 2 - menuW / 2;
+  // Keep inside screen
   if (left < 8) left = 8;
   if (left + menuW > window.innerWidth - 8) left = window.innerWidth - menuW - 8;
 
@@ -569,6 +456,7 @@ function toggleSortMenu() {
 let _diceInterval = null;
 let _diceIdleInterval = null;
 
+/* ── Dice idle cycling — always running ── */
 function startDiceIdle() {
   const faces = document.querySelectorAll('.dice-face');
   if (!faces.length) return;
@@ -590,6 +478,7 @@ function stopDiceIdle() {
 
 function resumeDiceIdle() {
   stopDiceIdle();
+  // small delay so it doesn't immediately restart mid-animation
   setTimeout(startDiceIdle, 200);
 }
 
@@ -625,6 +514,7 @@ function randomPick() {
   const pool = visible.length ? visible : all;
   if (!pool.length) return toast('❌ List empty hai', true);
 
+  // Animate dice
   const btn = document.querySelector('.random-btn');
   if (btn) {
     btn.style.pointerEvents = 'none';
@@ -706,6 +596,7 @@ async function saveMovie() {
 
   if (!id && (!section || section === 'Movies')) section = detectSection(name);
 
+  // Duplicate Detection
   if (!id) {
     const nameLC  = name.toLowerCase();
     const exact   = all.find(m => (m.name || '').toLowerCase() === nameLC);
@@ -736,13 +627,11 @@ async function saveMovie() {
       if (!data)  throw new Error('No row updated');
       const idx = all.findIndex(m => String(m.id) === id);
       if (idx !== -1) all[idx] = { ...all[idx], name, url, section };
-      clearCache(); saveCache();
       toast('✅ Edit ho gaya!');
     } else {
       const { data, error } = await db.from('movies').insert({ name, url, section }).select().single();
       if (error) throw error;
       all.push({ ...data, section: data.section || 'Movies' });
-      clearCache(); saveCache();
       renderSectionButtons();
       toast('✅ Add ho gaya!');
     }
@@ -765,7 +654,6 @@ async function delMovie(id) {
     if (error) throw error;
     all = all.filter(m => String(m.id) !== String(id));
     delete allLinks[id];
-    clearCache(); saveCache();
     renderSectionButtons();
     render();
     toast('🗑️ Delete ho gaya');
@@ -821,7 +709,6 @@ async function addLink() {
     allLinks[movieId].push({ id: data, movie_id: movieId, label, url, sort_order: allLinks[movieId].length });
     document.getElementById('newLinkLabel').value = '';
     document.getElementById('newLinkUrl').value   = '';
-    clearCache(); saveCache();
     renderLinksMgrList(movieId);
     render();
     toast('✅ Link add ho gaya!');
@@ -838,7 +725,6 @@ async function deleteLink(linkId, movieId) {
     const { error } = await db.rpc('admin_delete_link', { p_link_id: linkId, p_password: adminPassword });
     if (error) throw error;
     if (allLinks[movieId]) allLinks[movieId] = allLinks[movieId].filter(l => String(l.id) !== String(linkId));
-    clearCache(); saveCache();
     renderLinksMgrList(movieId);
     render();
     toast('🗑️ Link delete ho gaya');
