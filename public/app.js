@@ -530,19 +530,22 @@ function toggleSortMenu() {
 let _diceInterval = null;
 let _diceIdleInterval = null;
 
-/* ── Dice idle cycling — always running ── */
+/* ── Dice idle cycling — always running, never stops ── */
 function startDiceIdle() {
   const faces = document.querySelectorAll('.dice-face');
   if (!faces.length) return;
   let current = 0;
   const show = (i) => {
-    faces.forEach((f, idx) => f.style.display = idx === i ? '' : 'none');
+    faces.forEach((f, idx) => {
+      f.style.display = '';       // always keep in DOM
+      f.style.opacity = idx === i ? '1' : '0';
+    });
   };
   show(0);
   _diceIdleInterval = setInterval(() => {
-    current = (current + 1) % 6;
+    current = (current + 1) % faces.length;
     show(current);
-  }, 500);
+  }, 300); // 300ms = smooth continuous cycling, never stops
 }
 
 function stopDiceIdle() {
@@ -562,7 +565,10 @@ function animateDice() {
   if (!faces.length) return;
   let current = 0;
   const show = (i) => {
-    faces.forEach((f, idx) => f.style.display = idx === i ? '' : 'none');
+    faces.forEach((f, idx) => {
+      f.style.display = '';
+      f.style.opacity = idx === i ? '1' : '0';
+    });
   };
   _diceInterval && clearTimeout(_diceInterval);
 
@@ -576,7 +582,7 @@ function animateDice() {
     }
     const progress = frame / totalFrames;
     const delay = 50 + progress * progress * 130;
-    current = (current + 1) % 6;
+    current = (current + 1) % faces.length;
     show(current);
     frame++;
     _diceInterval = setTimeout(scheduleNext, delay);
