@@ -545,7 +545,7 @@ function startDiceIdle() {
   _diceIdleInterval = setInterval(() => {
     current = (current + 1) % faces.length;
     show(current);
-  }, 300); // 300ms = smooth continuous cycling, never stops
+  }, 500); // 500ms = smooth continuous cycling, never stops
 }
 
 function stopDiceIdle() {
