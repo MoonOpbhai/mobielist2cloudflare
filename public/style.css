@@ -214,8 +214,9 @@ header, main, .ov, #toast { position: relative; z-index: 2; }
 }
 
 @keyframes titleShimmer {
-  0%   { background-position: 0% center; }
-  100% { background-position: 200% center; }
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 h1 {
@@ -223,20 +224,19 @@ h1 {
   font-size: clamp(2.6rem, 7vw, 4.4rem);
   letter-spacing: 5px;
   line-height: 0.88;
-  background: linear-gradient(90deg,
-    #c8860a 0%,
-    #f5c84b 25%,
-    #fff5d0 45%,
-    #ffb347 55%,
-    #f5c84b 70%,
-    #c8860a 85%,
-    #f5c84b 100%
+  background: linear-gradient(135deg,
+    #f5c84b,
+    #ff7a2f,
+    #fff5d0,
+    #f5c84b,
+    #ff4d8f,
+    #f5c84b
   );
-  background-size: 200% auto;
+  background-size: 400% 400%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: titleShimmer 5s linear infinite;
+  animation: titleShimmer 6s ease infinite;
   filter: drop-shadow(0 2px 8px rgba(0,0,0,0.7)) drop-shadow(0 4px 16px rgba(0,0,0,0.5));
 }
 
