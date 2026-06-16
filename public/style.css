@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════
    MOON LIST — Premium Dark Cinema UI
-   style.css?v=moon-ui-v18-smooth
+   style.css?v=moon-ui-v22
 ═══════════════════════════════════════════════ */
 
 /* ── Variables ── */
@@ -40,10 +40,19 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-html { scroll-behavior: smooth; }
+/* Fix iOS Safari mobile scroll bg jitter: bg on html with fixed attachment */
+html {
+  scroll-behavior: smooth;
+  background-color: var(--bg);
+  background-image: url('bg.jpg');
+  background-size: cover;
+  background-position: center 30%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
 
 body {
-  background: var(--bg);
+  background: transparent;
   color: var(--text);
   font-family: "DM Sans", system-ui, sans-serif;
   min-height: 100vh;
@@ -52,18 +61,14 @@ body {
 }
 
 /* ── Cinematic Background ── */
+/* Opacity overlay only - bg-image moved to html to prevent mobile scroll jitter */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   z-index: 0;
-  background-image: url('bg.jpg');
-  background-size: cover;
-  background-position: center 30%;
-  background-repeat: no-repeat;
-  opacity: 0.80;
+  background: rgba(6,6,8,0.20);
   pointer-events: none;
-  will-change: transform;
 }
 
 /* Deep cinematic overlay */
@@ -537,26 +542,12 @@ h1 {
 }
 .random-btn:active { transform: scale(0.92); }
 
-/* Dice — idle face cycling (dots 1→2→3→4→5→6 loop) */
-@keyframes diceIdle {
-  0%,  16% { opacity: 1; }
-  17%, 100% { opacity: 0; }
-}
-
+/* Dice — idle face cycling handled by JS only (no CSS conflict) */
 .random-btn { perspective: none; }
 .random-btn .dice-svg {
   display: block;
   transform-origin: center center;
 }
-
-/* All faces hidden by default in idle, JS controls on click */
-/* Idle: cycle through faces with CSS */
-.random-btn:not(.rolling) .dice-f1 { display: block; animation: diceIdle 1.8s 0.0s linear infinite; }
-.random-btn:not(.rolling) .dice-f2 { display: block; animation: diceIdle 1.8s 0.3s linear infinite; }
-.random-btn:not(.rolling) .dice-f3 { display: block; animation: diceIdle 1.8s 0.6s linear infinite; }
-.random-btn:not(.rolling) .dice-f4 { display: block; animation: diceIdle 1.8s 0.9s linear infinite; }
-.random-btn:not(.rolling) .dice-f5 { display: block; animation: diceIdle 1.8s 1.2s linear infinite; }
-.random-btn:not(.rolling) .dice-f6 { display: block; animation: diceIdle 1.8s 1.5s linear infinite; }
 
 /* Fast spin on click */
 @keyframes diceSpin {
