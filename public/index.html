@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MOON LIST — Cinema Vault</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,900;1,9..40,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=moon-ui-v20">
+  <link rel="stylesheet" href="./style.css?v=moon-ui-v21">
 </head>
 <body>
 
@@ -40,6 +40,7 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           </span>
           <input type="text" id="search" placeholder="Search movies, shows, anime..." autocomplete="off" spellcheck="false">
+          <button class="search-clear" id="searchClear" type="button" aria-label="Clear search" style="display:none">✕</button>
         </div>
         <div class="filter-tabs">
          
@@ -126,7 +127,7 @@
       <div class="stat-card"><span class="stat-num" id="links">0</span><span class="stat-label">Links</span></div>
     </section>
 
-    <div id="loading" class="state-msg"><span class="state-icon">&#127916;</span><span>Loading vault...</span></div>
+    <div id="loading" class="skeleton-wrap" aria-label="Loading movies"></div>
     <div id="noRes" class="state-msg" style="display:none"><span class="state-icon">&#127917;</span><span>No title found</span></div>
     <div class="movie-list" id="list"></div>
   </main>
@@ -216,7 +217,7 @@
   <div id="toast"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./config.js?v=moon-ui-v20"></script>
-  <script src="./app.js?v=moon-ui-v20"></script>
+  <script src="./config.js?v=moon-ui-v21"></script>
+  <script src="./app.js?v=moon-ui-v21"></script>
 </body>
 </html>
