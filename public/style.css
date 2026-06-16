@@ -146,17 +146,29 @@ header, main, .ov, #toast { position: relative; z-index: 2; }
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(6,6,8,0);
-  border-bottom: 1px solid rgba(255,255,255,0);
+  background: transparent;
+  border-bottom: 1px solid transparent;
+}
+
+/* Blurred layer faded in/out smoothly via opacity, not by toggling backdrop-filter itself */
+.topbar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(6,6,8,0.45);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
-  transition: background 0.45s ease, border-color 0.45s ease;
-  will-change: background;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
 }
 
 .topbar.scrolled {
-  background: rgba(6,6,8,0.45);
-  border-bottom: 1px solid rgba(255,255,255,0.07);
+  border-bottom-color: rgba(255,255,255,0.07);
+}
+.topbar.scrolled::before {
+  opacity: 1;
 }
 
 .header-inner {
