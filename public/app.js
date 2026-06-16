@@ -27,15 +27,21 @@ if (SUPABASE_URL.includes('PASTE_') || SUPABASE_ANON_KEY.includes('PASTE_')) {
 /* ── Init ── */
 async function init() {
   try {
-    await Promise.all([loadMovies(), loadSections(), loadLinks()]);
+    // Movies first — render the instant they arrive, don't wait for sections/links
+    await loadMovies();
     document.getElementById('loading').style.display = 'none';
-    renderSectionButtons();
-    initSectionBarArrows();
-    renderSectionSelect();
-    updateAdminButton();
     setupEventListeners();
     render();
     startDiceIdle();
+
+    // Sections + links load in background, update UI silently once ready
+    Promise.all([loadSections(), loadLinks()]).then(() => {
+      renderSectionButtons();
+      initSectionBarArrows();
+      renderSectionSelect();
+      updateAdminButton();
+      render(); // re-render now that tags/links are available
+    }).catch(e => console.error('Sections/links load failed:', e));
   } catch (e) {
     document.getElementById('loading').innerHTML =
       '<span class="state-icon">❌</span><span>Load nahi hua: ' + e.message + '</span>';
