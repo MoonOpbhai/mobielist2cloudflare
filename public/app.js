@@ -34,13 +34,13 @@ async function init() {
     render();
     startDiceIdle();
 
-    // Sections + links load in background, update UI silently once ready
+    // Sections + links load in background, patch UI silently (no full re-render/flash)
     Promise.all([loadSections(), loadLinks()]).then(() => {
       renderSectionButtons();
       initSectionBarArrows();
       renderSectionSelect();
       updateAdminButton();
-      render(); // re-render now that tags/links are available
+      patchLinksIntoRows(); // update existing rows in-place, no rebuild/animation replay
     }).catch(e => console.error('Sections/links load failed:', e));
   } catch (e) {
     document.getElementById('loading').innerHTML =
@@ -423,6 +423,40 @@ function render() {
         ${adminBtns}
       </div>`;
   }).join('');
+}
+
+/* ── Patch links/tags into existing rows (no rebuild, no animation replay) ── */
+function patchLinksIntoRows() {
+  document.querySelectorAll('#list .row').forEach(rowEl => {
+    const id = rowEl.dataset.id;
+    const m  = all.find(mv => String(mv.id) === id);
+    if (!m) return;
+
+    const section = m.section || 'Movies';
+    const tagEl = rowEl.querySelector('.tag');
+    if (tagEl && tagEl.dataset.sec !== section) {
+      tagEl.dataset.sec = section;
+      tagEl.textContent = section;
+    }
+
+    const links = allLinks[m.id] || [];
+    let linksHtml = '';
+    if (links.length > 0) {
+      linksHtml = links.map(lnk =>
+        `<a class="dl" href="${esc(lnk.url)}" target="_blank" rel="noopener noreferrer" title="${esc(lnk.label)}">↗ ${esc(lnk.label)}</a>`
+      ).join('');
+    } else if (m.url) {
+      linksHtml = `<a class="dl" href="${esc(m.url)}" target="_blank" rel="noopener noreferrer">↗ Open</a>`;
+    }
+    const linksGroup = rowEl.querySelector('.links-group');
+    if (linksGroup && linksGroup.innerHTML !== linksHtml) {
+      linksGroup.innerHTML = linksHtml;
+    }
+  });
+
+  // Stats (link count) may have changed now that links are in — update numbers only
+  document.getElementById('links').textContent =
+    all.filter(m => m.url || (allLinks[m.id] && allLinks[m.id].length)).length;
 }
 
 /* ── Escape ── */
