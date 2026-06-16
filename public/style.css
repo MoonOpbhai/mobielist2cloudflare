@@ -501,19 +501,34 @@ h1 {
 }
 .random-btn:active { transform: scale(0.92); }
 
-/* Dice — no idle CSS, JS handles everything */
-@keyframes diceSpin {
-  0%   { transform: rotate(0deg)   scale(1); }
-  20%  { transform: rotate(90deg)  scale(1.22); }
-  50%  { transform: rotate(200deg) scale(1.18); }
-  80%  { transform: rotate(310deg) scale(1.08); }
-  100% { transform: rotate(360deg) scale(1); }
+/* Dice — idle face cycling (dots 1→2→3→4→5→6 loop) */
+@keyframes diceIdle {
+  0%,  16% { opacity: 1; }
+  17%, 100% { opacity: 0; }
 }
 
 .random-btn { perspective: none; }
 .random-btn .dice-svg {
   display: block;
   transform-origin: center center;
+}
+
+/* All faces hidden by default in idle, JS controls on click */
+/* Idle: cycle through faces with CSS */
+.random-btn:not(.rolling) .dice-f1 { display: block; animation: diceIdle 1.8s 0.0s linear infinite; }
+.random-btn:not(.rolling) .dice-f2 { display: block; animation: diceIdle 1.8s 0.3s linear infinite; }
+.random-btn:not(.rolling) .dice-f3 { display: block; animation: diceIdle 1.8s 0.6s linear infinite; }
+.random-btn:not(.rolling) .dice-f4 { display: block; animation: diceIdle 1.8s 0.9s linear infinite; }
+.random-btn:not(.rolling) .dice-f5 { display: block; animation: diceIdle 1.8s 1.2s linear infinite; }
+.random-btn:not(.rolling) .dice-f6 { display: block; animation: diceIdle 1.8s 1.5s linear infinite; }
+
+/* Fast spin on click */
+@keyframes diceSpin {
+  0%   { transform: rotate(0deg)   scale(1); }
+  20%  { transform: rotate(90deg)  scale(1.22); }
+  50%  { transform: rotate(200deg) scale(1.18); }
+  80%  { transform: rotate(310deg) scale(1.08); }
+  100% { transform: rotate(360deg) scale(1); }
 }
 .random-btn.rolling .dice-svg {
   animation: diceSpin 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
@@ -1205,74 +1220,48 @@ main {
   .stats-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
-/* ── Load More button ── */
-.load-more-btn {
-  display: block;
-  margin: 18px auto 0;
-  padding: 11px 32px;
-  background: rgba(245,200,75,0.08);
-  border: 1px solid rgba(245,200,75,0.3);
-  color: var(--accent);
-  font-family: "DM Sans", sans-serif;
-  font-size: 0.84rem;
-  font-weight: 800;
-  letter-spacing: 0.4px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 0.18s, border-color 0.18s, transform 0.15s;
-  white-space: nowrap;
-}
-.load-more-btn:hover {
-  background: rgba(245,200,75,0.16);
-  border-color: rgba(245,200,75,0.55);
-  transform: translateY(-2px);
-}
-
 @media (max-width: 600px) {
-  .header-inner { padding: 14px 12px 10px; gap: 10px; }
+  .header-inner { padding: 16px 12px 12px; gap: 12px; }
 
   .hero { flex-direction: column; align-items: flex-start; gap: 10px; }
   .hero-right { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; }
 
   h1 { font-size: clamp(2.2rem, 10vw, 3rem); }
 
-  .controls { gap: 6px; flex-wrap: wrap; }
-  .search-wrap { min-width: 100%; order: -1; }
-  .filter-tabs { flex: 1; min-width: 0; }
-  .fb { flex: 1; text-align: center; padding: 9px 4px; font-size: 0.68rem; min-width: 0; }
+  .controls { gap: 7px; }
+  .search-wrap { min-width: 100%; }
+  .filter-tabs { width: 100%; }
+  .fb { flex: 1; text-align: center; padding: 9px 6px; font-size: 0.7rem; }
   .sort-icon-btn { flex-shrink: 0; }
   .random-btn { flex-shrink: 0; }
 
   .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
-  .stat-card { padding: 10px 6px 8px; }
-  .stat-num { font-size: 1.4rem; }
-  .stat-label { font-size: 0.56rem; }
+  .stat-card { padding: 11px 6px 9px; }
+  .stat-num { font-size: 1.55rem; }
+  .stat-label { font-size: 0.58rem; }
 
-  main { padding: 14px 10px 80px; }
+  main { padding: 16px 10px 64px; }
 
   .row {
     gap: 7px;
-    padding: 10px 10px;
+    padding: 11px 10px;
     border-radius: var(--radius-sm);
+    /* Simpler hover on mobile — no horizontal slide */
     transition: background 0.15s, border-color 0.15s;
   }
   .row:hover { transform: none; }
   .num { min-width: 0; font-size: 0.9rem; }
-  .name { font-size: 0.86rem; }
+  .name { font-size: 0.88rem; }
   .tag { display: none; }
   .year, .rating { display: none; }
   .thumb { width: 26px; height: 38px; }
-  .dl { padding: 4px 8px; font-size: 0.65rem; }
+  .dl { padding: 4px 9px; font-size: 0.66rem; }
 
-  .modal { padding: 18px 14px; border-radius: var(--radius-lg); }
-
-  .load-more-btn { font-size: 0.8rem; padding: 10px 24px; }
+  .modal { padding: 20px 16px; border-radius: var(--radius-lg); }
 }
 
 @media (max-width: 380px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .fb { padding: 8px 2px; font-size: 0.62rem; }
-  h1 { font-size: 2rem; letter-spacing: 3px; }
 }
 
 /* Reduce motion for accessibility */
