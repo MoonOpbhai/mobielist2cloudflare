@@ -679,287 +679,8 @@ h1 {
 }
 
 /* ══════════════════════════════════
-   SPATIAL UI OVERRIDE LAYER
-   visionOS / Apple Vision Pro vibes
+   MAIN
 ══════════════════════════════════ */
-
-/* Deep space background — near-black with subtle depth */
-html {
-  background-color: #04040a !important;
-  background-image: none !important;
-}
-body::before {
-  background: rgba(4,4,10,0.92) !important;
-}
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  background:
-    radial-gradient(ellipse 60% 50% at 20% 20%, rgba(60,30,140,0.22) 0%, transparent 65%),
-    radial-gradient(ellipse 50% 60% at 80% 15%, rgba(140,30,80,0.16) 0%, transparent 60%),
-    radial-gradient(ellipse 70% 40% at 50% 90%, rgba(20,60,160,0.14) 0%, transparent 60%);
-  pointer-events: none;
-}
-
-/* Spatial orbs — muted, deep, slow */
-.orb-a {
-  background: radial-gradient(circle, rgba(80,40,200,0.3), transparent 70%) !important;
-  animation: orbFloat 20s ease-in-out infinite !important;
-  filter: blur(100px) !important;
-  width: 700px !important; height: 700px !important;
-  opacity: 0.6 !important;
-}
-.orb-b {
-  background: radial-gradient(circle, rgba(180,30,100,0.22), transparent 70%) !important;
-  animation: orbFloatB 28s ease-in-out infinite !important;
-  filter: blur(120px) !important;
-  width: 600px !important; height: 600px !important;
-  opacity: 0.5 !important;
-}
-.orb-c {
-  background: radial-gradient(circle, rgba(20,80,200,0.18), transparent 70%) !important;
-  animation: orbFloatC 34s ease-in-out infinite !important;
-  filter: blur(130px) !important;
-  width: 500px !important; height: 500px !important;
-  opacity: 0.4 !important;
-}
-
-/* ── Spatial rows — list layout (not bento grid) ── */
-.movie-list {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 8px !important;
-}
-
-.row {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  gap: 14px !important;
-  padding: 16px 20px !important;
-  border-radius: 16px !important;
-  background: rgba(255,255,255,0.04) !important;
-  border: 1px solid rgba(255,255,255,0.07) !important;
-  box-shadow: none !important;
-  transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease !important;
-  animation: rowIn 0.35s ease both;
-  position: relative;
-  overflow: hidden;
-  contain: layout style;
-  min-height: unset !important;
-}
-
-/* Spatial glow dot — left accent */
-.row::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 40%;
-  border-radius: 0 3px 3px 0;
-  background: var(--accent);
-  opacity: 0;
-  transition: opacity 0.25s, height 0.25s;
-  box-shadow: 0 0 12px var(--accent), 0 0 24px var(--accent);
-}
-.row::after { display: none !important; }
-
-.row:hover {
-  background: rgba(255,255,255,0.07) !important;
-  border-color: rgba(255,255,255,0.12) !important;
-  transform: translateX(6px) !important;
-  box-shadow: none !important;
-}
-.row:hover::before {
-  opacity: 1;
-  height: 55%;
-}
-
-/* row-top and row-bottom back to inline for list layout */
-.row-top {
-  display: contents;
-}
-.row-bottom {
-  margin-top: 0 !important;
-  display: contents;
-}
-
-/* name back to flex:1 inline */
-.name {
-  flex: 1 !important;
-  display: block !important;
-  -webkit-line-clamp: unset !important;
-  overflow: visible !important;
-  font-size: 0.93rem !important;
-  font-weight: 500 !important;
-  color: rgba(255,255,255,0.88) !important;
-  letter-spacing: 0.2px !important;
-}
-.row:hover .name {
-  color: #ffffff !important;
-}
-
-/* ── Spatial stat cards — deep minimal ── */
-.stat-card {
-  border-radius: 14px !important;
-  background: rgba(255,255,255,0.03) !important;
-  border: 1px solid rgba(255,255,255,0.06) !important;
-  box-shadow: none !important;
-}
-.stat-card:hover {
-  background: rgba(255,255,255,0.06) !important;
-  border-color: rgba(255,255,255,0.1) !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 0 30px rgba(245,200,75,0.08) !important;
-}
-
-/* ── Spatial search ── */
-#search {
-  border-radius: 12px !important;
-  background: rgba(255,255,255,0.04) !important;
-  border: 1px solid rgba(255,255,255,0.08) !important;
-  box-shadow: none !important;
-  color: rgba(255,255,255,0.9) !important;
-}
-#search:focus {
-  background: rgba(255,255,255,0.07) !important;
-  border-color: rgba(245,200,75,0.35) !important;
-  box-shadow: 0 0 0 3px rgba(245,200,75,0.06), 0 0 20px rgba(245,200,75,0.08) !important;
-}
-
-/* ── Spatial filter buttons ── */
-.fb {
-  border-radius: 10px !important;
-  background: rgba(255,255,255,0.03) !important;
-  border: 1px solid rgba(255,255,255,0.07) !important;
-  box-shadow: none !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.3px !important;
-}
-.fb:hover {
-  background: rgba(255,255,255,0.07) !important;
-  border-color: rgba(255,255,255,0.12) !important;
-  transform: none !important;
-}
-.fb.active {
-  background: rgba(245,200,75,0.1) !important;
-  border-color: rgba(245,200,75,0.25) !important;
-  color: var(--accent) !important;
-  box-shadow: 0 0 20px rgba(245,200,75,0.1) !important;
-}
-
-/* ── Spatial section chips ── */
-.sb {
-  border-radius: 999px !important;
-  background: rgba(255,255,255,0.03) !important;
-  border: 1px solid rgba(255,255,255,0.07) !important;
-  box-shadow: none !important;
-}
-.sb:hover {
-  background: rgba(255,255,255,0.07) !important;
-  border-color: rgba(255,255,255,0.12) !important;
-  transform: none !important;
-}
-.sb.active {
-  background: rgba(245,200,75,0.08) !important;
-  border-color: rgba(245,200,75,0.22) !important;
-  color: var(--accent) !important;
-  box-shadow: 0 0 16px rgba(245,200,75,0.1) !important;
-}
-
-/* ── Spatial glowing dots on tags ── */
-.tag {
-  border-radius: 8px !important;
-  font-size: 0.6rem !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.8px !important;
-}
-
-/* Section-specific glow colors */
-.tag[data-sec="Movies"]  { box-shadow: 0 0 10px rgba(115,183,255,0.25) !important; }
-.tag[data-sec="Series"]  { box-shadow: 0 0 10px rgba(160,100,255,0.25) !important; }
-.tag[data-sec="Anime"]   { box-shadow: 0 0 10px rgba(255,100,150,0.25) !important; }
-.tag[data-sec="Korean"]  { box-shadow: 0 0 10px rgba(255,200,50,0.25) !important; }
-
-/* ── Spatial add button ── */
-.add-btn {
-  border-radius: 12px !important;
-  background: linear-gradient(135deg, rgba(255,122,47,0.85), rgba(255,60,100,0.75)) !important;
-  border: 1px solid rgba(255,255,255,0.15) !important;
-  box-shadow: 0 0 24px rgba(255,90,60,0.2), 0 0 48px rgba(255,90,60,0.1) !important;
-}
-.add-btn:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 0 32px rgba(255,90,60,0.35), 0 0 64px rgba(255,90,60,0.15) !important;
-}
-
-/* ── Spatial admin/sort/dice ── */
-.admin-btn, .sort-icon-btn, .random-btn {
-  border-radius: 10px !important;
-  background: rgba(255,255,255,0.04) !important;
-  border: 1px solid rgba(255,255,255,0.08) !important;
-  box-shadow: none !important;
-}
-.admin-btn:hover, .sort-icon-btn:hover, .random-btn:hover {
-  background: rgba(255,255,255,0.08) !important;
-  border-color: rgba(245,200,75,0.2) !important;
-  transform: none !important;
-  box-shadow: 0 0 16px rgba(245,200,75,0.1) !important;
-}
-
-/* ── Spatial badge — glowing dot accent ── */
-.badge {
-  border-radius: 999px !important;
-  background: rgba(245,200,75,0.08) !important;
-  border: 1px solid rgba(245,200,75,0.2) !important;
-  box-shadow: 0 0 16px rgba(245,200,75,0.15), 0 0 32px rgba(245,200,75,0.06) !important;
-}
-
-/* ── Spatial topbar ── */
-.topbar::before {
-  background: rgba(4,4,10,0.7) !important;
-  backdrop-filter: blur(32px) !important;
-  -webkit-backdrop-filter: blur(32px) !important;
-}
-.topbar.scrolled {
-  border-bottom-color: rgba(255,255,255,0.05) !important;
-}
-
-/* ── Spatial modal ── */
-.modal {
-  border-radius: 20px !important;
-  background: rgba(8,8,18,0.88) !important;
-  backdrop-filter: blur(48px) !important;
-  -webkit-backdrop-filter: blur(48px) !important;
-  border: 1px solid rgba(255,255,255,0.1) !important;
-  box-shadow: 0 40px 120px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.05) !important;
-}
-
-/* ── Spatial sort dropdown ── */
-.sort-dropdown {
-  border-radius: 14px !important;
-  background: rgba(8,8,18,0.9) !important;
-  backdrop-filter: blur(40px) !important;
-  -webkit-backdrop-filter: blur(40px) !important;
-  border: 1px solid rgba(255,255,255,0.08) !important;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.6) !important;
-}
-
-/* ── Spatial dl links ── */
-a.dl {
-  color: rgba(100,160,255,0.9) !important;
-  background: rgba(60,120,255,0.08) !important;
-  border: 1px solid rgba(60,120,255,0.15) !important;
-  border-radius: 8px !important;
-  box-shadow: 0 0 12px rgba(60,120,255,0.1) !important;
-}
-a.dl:hover {
-  background: rgba(60,120,255,0.15) !important;
-  box-shadow: 0 0 20px rgba(60,120,255,0.2) !important;
-}
 main {
   max-width: 1020px;
   margin: 0 auto;
@@ -1123,17 +844,9 @@ main {
 
 /* ── Movie list ── */
 .movie-list {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-auto-rows: auto;
-  gap: 10px;
-}
-
-@media (max-width: 700px) {
-  .movie-list { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 420px) {
-  .movie-list { grid-template-columns: 1fr; }
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 /* ── Row — PERFORMANCE OPTIMIZED ── */
@@ -1148,66 +861,52 @@ main {
 
 .row {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 14px;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
   border-radius: var(--radius);
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.09);
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.07);
+  /* Smooth transition — no blur on rows for perf */
   transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease;
   animation: rowIn 0.3s ease both;
   position: relative;
   overflow: hidden;
+  /* GPU layer hint for smooth animation — but only once */
   contain: layout style;
-  cursor: default;
-  min-height: 90px;
-}
-
-/* Every 7th card spans 2 columns — bento wide tile */
-.row:nth-child(7n+1) {
-  grid-column: span 2;
 }
 
 .row:hover {
   background: rgba(255,200,75,0.07);
-  border-color: rgba(255,200,75,0.25);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  border-color: rgba(255,200,75,0.2);
+  transform: translateX(4px);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.28);
 }
 .row.new { animation: rowHighlight 2.8s ease forwards; }
 
-/* Top accent bar on hover */
+/* Subtle left accent line on hover */
 .row::before {
   content: '';
   position: absolute;
-  top: 0; left: 10%; right: 10%;
-  height: 2px;
-  border-radius: 0 0 2px 2px;
-  background: linear-gradient(90deg, var(--accent2), var(--accent));
+  left: 0; top: 20%; bottom: 20%;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--accent2), var(--accent));
   opacity: 0;
   transition: opacity 0.2s ease;
 }
-.row:hover::before { opacity: 0.8; }
+.row:hover::before { opacity: 0.7; }
 
-/* Bento card top row: tag left, admin btns right */
-.row-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
+.num {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1rem;
+  color: #ffffff;
+  min-width: 0;
+  text-align: right;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
 }
-
-/* Bento card bottom row: links */
-.row-bottom {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-top: auto;
-}
-
-.num { display: none; }
-.dot { display: none; }
 
 /* Poster thumbnail */
 .thumb {
@@ -1262,21 +961,16 @@ main {
 .row:hover .dot { opacity: 0.85; transform: scale(1.4); }
 
 .name {
-  font-size: 0.95rem;
-  font-weight: 700;
+  flex: 1;
+  font-size: 0.93rem;
+  font-weight: 600;
   color: #ffffff;
-  line-height: 1.35;
+  line-height: 1.42;
   min-width: 0;
   text-shadow: 0 1px 4px rgba(0,0,0,0.5);
   transition: color 0.15s;
-  flex: 1;
-  /* clamp to 2 lines in bento */
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
-.row:hover .name { color: var(--accent); }
+.row:hover .name { color: #fff; }
 
 /* Section tag */
 .tag {
