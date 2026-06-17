@@ -137,6 +137,12 @@ header, main, .ov, #toast { position: relative; z-index: 2; }
   z-index: 100;
   background: transparent;
   border-bottom: 1px solid transparent;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease;
+}
+
+/* Slides fully off-screen while scrolling down through the list */
+.topbar.header-hidden {
+  transform: translateY(-100%);
 }
 
 /* Blurred layer faded in/out smoothly via opacity, not by toggling backdrop-filter itself */
