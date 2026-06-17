@@ -449,6 +449,7 @@ function render() {
 
     return `
       <div class="row" data-id="${esc(id)}" style="animation-delay:${delay}s">
+        <span class="num">${num}</span>
         <span class="dot"></span>
         <span class="name">${esc(m.name)}</span>
         <span class="tag" data-sec="${esc(section)}">${esc(section)}</span>
@@ -544,7 +545,7 @@ function startDiceIdle() {
   _diceIdleInterval = setInterval(() => {
     current = (current + 1) % faces.length;
     show(current);
-  }, 300); // 300ms = smooth continuous cycling, never stops
+  }, 500); // 500ms = smooth continuous cycling, never stops
 }
 
 function stopDiceIdle() {
