@@ -449,14 +449,11 @@ function render() {
 
     return `
       <div class="row" data-id="${esc(id)}" style="animation-delay:${delay}s">
-        <div class="row-top">
-          <span class="tag" data-sec="${esc(section)}">${esc(section)}</span>
-          <div style="display:flex;gap:4px;align-items:center;">${adminBtns}</div>
-        </div>
+        <span class="dot"></span>
         <span class="name">${esc(m.name)}</span>
-        <div class="row-bottom">
-          <div class="links-group">${linksHtml}</div>
-        </div>
+        <span class="tag" data-sec="${esc(section)}">${esc(section)}</span>
+        <div class="links-group">${linksHtml}</div>
+        ${adminBtns}
       </div>`;
   }).join('');
 }
