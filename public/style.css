@@ -132,38 +132,10 @@ header, main, .ov, #toast { position: relative; z-index: 2; }
    TOPBAR / HEADER
 ══════════════════════════════════ */
 .topbar {
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  position: relative;
+  z-index: 2;
   background: transparent;
   border-bottom: 1px solid transparent;
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease;
-}
-
-/* Slides fully off-screen while scrolling down through the list */
-.topbar.header-hidden {
-  transform: translateY(-100%);
-}
-
-/* Blurred layer faded in/out smoothly via opacity, not by toggling backdrop-filter itself */
-.topbar::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: rgba(6,6,8,0.45);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  pointer-events: none;
-}
-
-.topbar.scrolled {
-  border-bottom-color: rgba(255,255,255,0.07);
-}
-.topbar.scrolled::before {
-  opacity: 1;
 }
 
 .header-inner {
@@ -1303,12 +1275,6 @@ main {
 
 @media (max-width: 600px) {
   .header-inner { padding: 10px 12px 8px; gap: 8px; }
-
-  .topbar::before {
-    backdrop-filter: blur(14px) saturate(150%);
-    -webkit-backdrop-filter: blur(14px) saturate(150%);
-    background: rgba(6,6,8,0.88);
-  }
 
   .hero { flex-direction: column; align-items: flex-start; gap: 10px; }
   .hero-right { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; }
