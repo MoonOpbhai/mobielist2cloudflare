@@ -194,13 +194,8 @@ header, main, .ov, #toast { position: relative; z-index: 2; }
   flex-wrap: wrap;
 }
 
-/* Hero text entrance */
-@keyframes heroIn {
-  from { opacity: 0; transform: translateY(-14px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+/* Hero text entrance — animation removed */
 .hero-text {
-  animation: heroIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .eyebrow {
@@ -211,12 +206,6 @@ header, main, .ov, #toast { position: relative; z-index: 2; }
   color: var(--accent2);
   margin-bottom: 4px;
   text-shadow: 0 1px 4px rgba(0,0,0,0.6);
-}
-
-@keyframes titleShimmer {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
 }
 
 h1 {
@@ -236,7 +225,6 @@ h1 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: titleShimmer 6s ease infinite;
   filter: drop-shadow(0 2px 8px rgba(0,0,0,0.7)) drop-shadow(0 4px 16px rgba(0,0,0,0.5));
 }
 
