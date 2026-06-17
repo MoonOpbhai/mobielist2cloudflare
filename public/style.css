@@ -679,8 +679,164 @@ h1 {
 }
 
 /* ══════════════════════════════════
-   MAIN
+   BRUTALISM OVERRIDE LAYER
+   Applies on top of base styles
 ══════════════════════════════════ */
+
+/* ── Brutalist rows ── */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 0 !important;
+  background: rgba(255,255,255,0.03) !important;
+  border: 2px solid rgba(255,255,255,0.7) !important;
+  border-left: 5px solid var(--accent) !important;
+  transition: background 0.15s, border-color 0.15s, transform 0.12s !important;
+  box-shadow: 3px 3px 0px rgba(245,200,75,0.5) !important;
+  animation: rowIn 0.3s ease both;
+  position: relative;
+  overflow: hidden;
+  contain: layout style;
+  margin-bottom: 6px;
+}
+.row:hover {
+  background: rgba(245,200,75,0.08) !important;
+  border-color: var(--accent) !important;
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 6px 6px 0px rgba(245,200,75,0.7) !important;
+}
+.row::before { display: none !important; }
+
+/* ── Brutalist stat cards ── */
+.stat-card {
+  border-radius: 0 !important;
+  border: 2px solid rgba(255,255,255,0.6) !important;
+  box-shadow: 4px 4px 0px rgba(245,200,75,0.4) !important;
+  background: rgba(255,255,255,0.02) !important;
+}
+.stat-card:hover {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 6px 6px 0px rgba(245,200,75,0.7) !important;
+  border-color: var(--accent) !important;
+}
+
+/* ── Brutalist search ── */
+#search {
+  border-radius: 0 !important;
+  border: 2px solid rgba(255,255,255,0.6) !important;
+  box-shadow: 3px 3px 0px rgba(245,200,75,0.3) !important;
+}
+#search:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 4px 4px 0px rgba(245,200,75,0.6) !important;
+}
+
+/* ── Brutalist filter buttons ── */
+.fb {
+  border-radius: 0 !important;
+  border: 2px solid rgba(255,255,255,0.5) !important;
+  box-shadow: 3px 3px 0px rgba(0,0,0,0.5) !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+}
+.fb:hover {
+  transform: translate(-1px, -1px) !important;
+  box-shadow: 4px 4px 0px rgba(245,200,75,0.5) !important;
+  border-color: var(--accent) !important;
+}
+.fb.active {
+  border-color: var(--accent) !important;
+  box-shadow: 4px 4px 0px rgba(245,200,75,0.7) !important;
+}
+
+/* ── Brutalist section chips ── */
+.sb {
+  border-radius: 0 !important;
+  border: 2px solid rgba(255,255,255,0.5) !important;
+  box-shadow: 2px 2px 0px rgba(0,0,0,0.5) !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.8px !important;
+}
+.sb:hover {
+  transform: translate(-1px, -1px) !important;
+  box-shadow: 3px 3px 0px rgba(245,200,75,0.5) !important;
+}
+.sb.active {
+  border-color: var(--accent) !important;
+  box-shadow: 3px 3px 0px var(--accent) !important;
+}
+
+/* ── Brutalist add button ── */
+.add-btn {
+  border-radius: 0 !important;
+  box-shadow: 4px 4px 0px rgba(255,122,47,0.8) !important;
+  border: 2px solid rgba(255,255,255,0.4) !important;
+}
+.add-btn:hover {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 6px 6px 0px rgba(255,122,47,0.9) !important;
+}
+.add-btn:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 1px 1px 0px rgba(255,122,47,0.8) !important;
+}
+
+/* ── Brutalist admin/sort/dice buttons ── */
+.admin-btn, .sort-icon-btn, .random-btn {
+  border-radius: 0 !important;
+  box-shadow: 3px 3px 0px rgba(0,0,0,0.6) !important;
+}
+.admin-btn:hover, .sort-icon-btn:hover, .random-btn:hover {
+  transform: translate(-1px, -1px) !important;
+  box-shadow: 4px 4px 0px rgba(245,200,75,0.5) !important;
+}
+
+/* ── Brutalist tags & badges ── */
+.tag {
+  border-radius: 0 !important;
+  border: 2px solid currentColor !important;
+  font-weight: 900 !important;
+  letter-spacing: 1px !important;
+}
+.year, .rating {
+  border-radius: 0 !important;
+  border: 2px solid currentColor !important;
+  font-weight: 900 !important;
+}
+.badge {
+  border-radius: 0 !important;
+  border: 2px solid var(--accent) !important;
+  box-shadow: 3px 3px 0px rgba(245,200,75,0.4) !important;
+}
+
+/* ── Brutalist thumb ── */
+.thumb {
+  border-radius: 0 !important;
+  border: 2px solid rgba(255,255,255,0.5) !important;
+}
+
+/* ── Brutalist sort dropdown ── */
+.sort-dropdown {
+  border-radius: 0 !important;
+  border: 2px solid rgba(255,255,255,0.5) !important;
+  box-shadow: 5px 5px 0px rgba(0,0,0,0.8) !important;
+}
+
+/* ── Brutalist modal / overlay panels ── */
+.ov-panel, .modal, [class*="panel"] {
+  border-radius: 0 !important;
+  border: 2px solid rgba(255,255,255,0.6) !important;
+  box-shadow: 8px 8px 0px rgba(0,0,0,0.8) !important;
+}
+
+/* ── Topbar border ── */
+.topbar.scrolled {
+  border-bottom: 3px solid var(--accent) !important;
+}
 main {
   max-width: 1020px;
   margin: 0 auto;
