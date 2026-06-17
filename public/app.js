@@ -449,12 +449,14 @@ function render() {
 
     return `
       <div class="row" data-id="${esc(id)}" style="animation-delay:${delay}s">
-        <span class="num">${num}</span>
-        <span class="dot"></span>
+        <div class="row-top">
+          <span class="tag" data-sec="${esc(section)}">${esc(section)}</span>
+          <div style="display:flex;gap:4px;align-items:center;">${adminBtns}</div>
+        </div>
         <span class="name">${esc(m.name)}</span>
-        <span class="tag" data-sec="${esc(section)}">${esc(section)}</span>
-        <div class="links-group">${linksHtml}</div>
-        ${adminBtns}
+        <div class="row-bottom">
+          <div class="links-group">${linksHtml}</div>
+        </div>
       </div>`;
   }).join('');
 }
@@ -545,7 +547,7 @@ function startDiceIdle() {
   _diceIdleInterval = setInterval(() => {
     current = (current + 1) % faces.length;
     show(current);
-  }, 500); // 500ms = smooth continuous cycling, never stops
+  }, 300); // 300ms = smooth continuous cycling, never stops
 }
 
 function stopDiceIdle() {
