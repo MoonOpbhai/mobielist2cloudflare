@@ -827,7 +827,37 @@ document.querySelectorAll('.ov').forEach(ov => {
   ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); });
 });
 
-/* ── Topbar scroll blur ── */
-window.addEventListener('scroll', () => {
-  document.querySelector('.topbar').classList.toggle('scrolled', window.scrollY > 10);
-}, { passive: true });
+/* ── Topbar scroll blur + hide-on-scroll-down / show-on-scroll-up ── */
+(() => {
+  const topbarEl = document.querySelector('.topbar');
+  let lastY = window.scrollY;
+  let ticking = false;
+
+  function update() {
+    const y = window.scrollY;
+    const delta = y - lastY;
+
+    topbarEl.classList.toggle('scrolled', y > 10);
+
+    if (y <= 10) {
+      // Always show full header near the top of the page
+      topbarEl.classList.remove('header-hidden');
+    } else if (delta > 4 && y > topbarEl.offsetHeight) {
+      // Scrolling down past the header height → hide it
+      topbarEl.classList.add('header-hidden');
+    } else if (delta < -4) {
+      // Any upward scroll → reveal it immediately
+      topbarEl.classList.remove('header-hidden');
+    }
+
+    lastY = y;
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(update);
+      ticking = true;
+    }
+  }, { passive: true });
+})();
