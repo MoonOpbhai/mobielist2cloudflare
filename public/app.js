@@ -822,3 +822,10 @@ function toast(msg, err) {
 document.querySelectorAll('.ov').forEach(ov => {
   ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); });
 });
+
+/* ── PWA: register service worker so "Add to Home Screen" opens app-like (standalone, no browser UI) ── */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
