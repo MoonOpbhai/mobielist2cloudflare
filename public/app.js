@@ -614,7 +614,7 @@ function randomPick() {
       row.classList.remove('random-pick');
       void row.offsetWidth;
       row.classList.add('random-pick');
-      setTimeout(() => row.classList.remove('random-pick'), 2000);
+      setTimeout(() => row.classList.remove('random-pick'), 2300);
     }
     toast(`🎲 ${pick.name}`);
   }, 720);
