@@ -4,8 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MOON LIST — Cinema Vault</title>
+
+  <!-- Open connections early so fonts / Supabase / CDN don't pay DNS+TLS latency later -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://jkvldbtwpfudiccgqahu.supabase.co" crossorigin>
+
+  <!-- Background image is discovered late when loaded only via CSS — preload it -->
+  <link rel="preload" as="image" href="./bg.jpg" fetchpriority="high">
+
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,900;1,9..40,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=moon-ui-v22">
+  <link rel="stylesheet" href="./style.css?v=moon-ui-v24">
 </head>
 <body>
 
@@ -216,8 +226,8 @@
 
   <div id="toast"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./config.js?v=moon-ui-v22"></script>
-  <script src="./app.js?v=moon-ui-v22"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.108.2"></script>
+  <script src="./config.js?v=moon-ui-v24"></script>
+  <script src="./app.js?v=moon-ui-v24"></script>
 </body>
 </html>
