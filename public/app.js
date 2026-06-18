@@ -46,14 +46,14 @@ async function init() {
     render();
     startDiceIdle();
 
-    // Sections + links load in background, patch UI silently (no full re-render/flash)
-    Promise.all([loadSections(), loadLinks()]).then(() => {
+    // Sections load in background, patch UI silently (no full re-render/flash)
+    loadSections().then(() => {
       renderSectionButtons();
       initSectionBarArrows();
       renderSectionSelect();
       updateAdminButton();
       patchLinksIntoRows(); // update existing rows in-place, no rebuild/animation replay
-    }).catch(e => console.error('Sections/links load failed:', e));
+    }).catch(e => console.error('Sections load failed:', e));
   } catch (e) {
     document.getElementById('loading').innerHTML =
       '<span class="state-icon">❌</span><span>Load nahi hua: ' + e.message + '</span>';
@@ -124,10 +124,19 @@ function setupEventListeners() {
 async function loadMovies() {
   const { data, error } = await db
     .from('movies')
-    .select('id,name,url,section,created_at')
-    .order('created_at', { ascending: true });
+    .select('id,name,url,section,created_at, movie_links(id,label,url,sort_order)')
+    .order('created_at', { ascending: true })
+    .order('sort_order', { foreignTable: 'movie_links', ascending: true });
   if (error) throw error;
-  all = (data || []).map(m => ({ ...m, section: m.section || 'Movies' }));
+
+  allLinks = {};
+  all = (data || []).map(m => {
+    const { movie_links, ...rest } = m;
+    if (movie_links && movie_links.length) {
+      allLinks[m.id] = movie_links.map(l => ({ ...l, movie_id: m.id }));
+    }
+    return { ...rest, section: rest.section || 'Movies' };
+  });
 }
 
 async function loadSections() {
@@ -137,19 +146,6 @@ async function loadSections() {
     .order('sort_order', { ascending: true });
   if (error) throw error;
   allSections = data || [];
-}
-
-async function loadLinks() {
-  const { data, error } = await db
-    .from('movie_links')
-    .select('id,movie_id,label,url,sort_order')
-    .order('sort_order', { ascending: true });
-  if (error) throw error;
-  allLinks = {};
-  (data || []).forEach(lnk => {
-    if (!allLinks[lnk.movie_id]) allLinks[lnk.movie_id] = [];
-    allLinks[lnk.movie_id].push(lnk);
-  });
 }
 
 /* ── Admin ── */
