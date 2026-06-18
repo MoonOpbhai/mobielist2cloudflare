@@ -1,10 +1,18 @@
-const CACHE = 'moon-flix-shell-v1';
-const SHELL = ['./', './style.css?v=moon-ui-v28', './app.js?v=moon-ui-v28', './config.js?v=moon-ui-v28'];
+const CACHE = 'moon-flix-shell-v2';
+const SHELL = [
+  './',
+  './style.css?v=moon-ui-v28',
+  './app.js?v=moon-ui-v28',
+  './config.js?v=moon-ui-v28',
+  './icon-192.png',
+  './icon-512.png'
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE).then((c) => c.addAll(SHELL)).catch(() => {})
   );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -16,16 +24,29 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Network-first: always try fresh data, fall back to cached shell if offline
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
+  const req = event.request;
+  if (req.method !== 'GET') return;
+
+  const url = new URL(req.url);
+  const isSameOrigin = url.origin === self.location.origin;
+  const isShellAsset = isSameOrigin && SHELL.some((s) => req.url.endsWith(s.replace('./', '')));
+
+  if (!isSameOrigin || !isShellAsset) {
+    // Supabase calls, fonts, TMDB, etc. — always go straight to the network untouched
+    return;
+  }
+
+  // Shell assets: cache-first → instant on repeat opens. Safe because the
+  // ?v= query string changes on every deploy, so a new version is a new URL.
   event.respondWith(
-    fetch(event.request)
-      .then((res) => {
+    caches.match(req).then((cached) => {
+      if (cached) return cached;
+      return fetch(req).then((res) => {
         const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(event.request, copy)).catch(() => {});
+        caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
         return res;
-      })
-      .catch(() => caches.match(event.request))
+      });
+    })
   );
 });
