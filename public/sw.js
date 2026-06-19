@@ -1,11 +1,11 @@
-const CACHE = 'moon-flix-shell-v5';
+const CACHE = 'moon-flix-shell-v6';
 const SHELL = [
   './',
   './style.css?v=moon-ui-v30',
   './app.js?v=moon-ui-v30',
   './config.js?v=moon-ui-v30',
-  './icon-192.png',
-  './icon-512.png'
+  './icon-192.png?v=2',
+  './icon-512.png?v=2'
 ];
 
 self.addEventListener('install', (event) => {
