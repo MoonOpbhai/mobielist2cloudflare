@@ -40,15 +40,9 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Fix iOS Safari mobile scroll bg jitter: bg on html with fixed attachment */
 html {
   scroll-behavior: smooth;
   background-color: var(--bg);
-  background-image: url('bg.jpg');
-  background-size: cover;
-  background-position: center 30%;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
 }
 
 body {
@@ -58,16 +52,25 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   position: relative;
+  opacity: 0;
+  transition: opacity 0.45s ease;
 }
+body.ready { opacity: 1; }
 
 /* ── Cinematic Background ── */
-/* Opacity overlay only - bg-image moved to html to prevent mobile scroll jitter */
+/* Real fix for mobile bg jitter: background-attachment:fixed is unreliable on
+   mobile browsers (image scrolls with content despite "fixed"). A position:fixed
+   element is reliable everywhere, so the image lives here instead. */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   z-index: 0;
-  background: rgba(6,6,8,0.20);
+  background-color: var(--bg);
+  background-image: linear-gradient(rgba(6,6,8,0.20), rgba(6,6,8,0.20)), url('bg.jpg');
+  background-size: cover, cover;
+  background-position: center, center 30%;
+  background-repeat: no-repeat, no-repeat;
   pointer-events: none;
 }
 

@@ -31,6 +31,7 @@ renderSkeleton(8);
 if (SUPABASE_URL.includes('PASTE_') || SUPABASE_ANON_KEY.includes('PASTE_')) {
   document.getElementById('loading').innerHTML =
     '<span class="state-icon">❌</span><span>Supabase config missing.</span>';
+  document.body.classList.add('ready');
 } else {
   db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   init();
@@ -45,6 +46,7 @@ async function init() {
     setupEventListeners();
     render();
     startDiceIdle();
+    requestAnimationFrame(() => document.body.classList.add('ready'));
 
     // Sections load in background, patch UI silently (no full re-render/flash)
     loadSections().then(() => {
@@ -57,6 +59,7 @@ async function init() {
   } catch (e) {
     document.getElementById('loading').innerHTML =
       '<span class="state-icon">❌</span><span>Load nahi hua: ' + e.message + '</span>';
+    document.body.classList.add('ready');
     console.error(e);
   }
 }
@@ -122,12 +125,17 @@ function setupEventListeners() {
 
 /* ── Fetch ── */
 async function loadMovies() {
+  // Try the fast combined query first (movies + their links in one round trip)
   const { data, error } = await db
     .from('movies')
     .select('id,name,url,section,created_at, movie_links(id,label,url,sort_order)')
     .order('created_at', { ascending: true })
     .order('sort_order', { foreignTable: 'movie_links', ascending: true });
-  if (error) throw error;
+
+  if (error) {
+    console.warn('Combined movies+links query failed, falling back:', error.message);
+    return loadMoviesFallback();
+  }
 
   allLinks = {};
   all = (data || []).map(m => {
@@ -136,6 +144,28 @@ async function loadMovies() {
       allLinks[m.id] = movie_links.map(l => ({ ...l, movie_id: m.id }));
     }
     return { ...rest, section: rest.section || 'Movies' };
+  });
+}
+
+// Safety net: separate queries, used only if the embedded join above ever fails
+async function loadMoviesFallback() {
+  const { data, error } = await db
+    .from('movies')
+    .select('id,name,url,section,created_at')
+    .order('created_at', { ascending: true });
+  if (error) throw error;
+  all = (data || []).map(m => ({ ...m, section: m.section || 'Movies' }));
+
+  const { data: links, error: linkErr } = await db
+    .from('movie_links')
+    .select('id,movie_id,label,url,sort_order')
+    .order('sort_order', { ascending: true });
+  if (linkErr) { console.error('Links fallback failed:', linkErr.message); return; }
+
+  allLinks = {};
+  (links || []).forEach(lnk => {
+    if (!allLinks[lnk.movie_id]) allLinks[lnk.movie_id] = [];
+    allLinks[lnk.movie_id].push(lnk);
   });
 }
 
