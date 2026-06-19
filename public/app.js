@@ -855,5 +855,14 @@ document.querySelectorAll('.ov').forEach(ov => {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
+
+    // When a new version takes over, refresh once automatically so the
+    // person always sees the latest code — no manual "update" button needed.
+    let refreshedOnce = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshedOnce) return;
+      refreshedOnce = true;
+      window.location.reload();
+    });
   });
 }
