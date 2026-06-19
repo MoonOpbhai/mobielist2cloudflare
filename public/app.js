@@ -27,11 +27,11 @@ function renderSkeleton(count) {
     </div>`).join('');
 }
 renderSkeleton(8);
+requestAnimationFrame(() => document.body.classList.add('ready'));
 
 if (SUPABASE_URL.includes('PASTE_') || SUPABASE_ANON_KEY.includes('PASTE_')) {
   document.getElementById('loading').innerHTML =
     '<span class="state-icon">❌</span><span>Supabase config missing.</span>';
-  document.body.classList.add('ready');
 } else {
   db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   init();
@@ -46,7 +46,6 @@ async function init() {
     setupEventListeners();
     render();
     startDiceIdle();
-    requestAnimationFrame(() => document.body.classList.add('ready'));
 
     // Sections load in background, patch UI silently (no full re-render/flash)
     loadSections().then(() => {
@@ -59,7 +58,6 @@ async function init() {
   } catch (e) {
     document.getElementById('loading').innerHTML =
       '<span class="state-icon">❌</span><span>Load nahi hua: ' + e.message + '</span>';
-    document.body.classList.add('ready');
     console.error(e);
   }
 }
