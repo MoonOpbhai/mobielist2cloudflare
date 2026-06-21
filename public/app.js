@@ -45,7 +45,6 @@ async function init() {
     document.getElementById('loading').style.display = 'none';
     setupEventListeners();
     render();
-    startDiceIdle();
 
     // Sections load in background, patch UI silently (no full re-render/flash)
     loadSections().then(() => {
@@ -548,104 +547,6 @@ function toggleSortMenu() {
 
   menu.classList.add('open');
   btn.classList.add('active');
-}
-
-/* ── Random Pick ── */
-let _diceInterval = null;
-let _diceIdleInterval = null;
-
-/* ── Dice idle cycling — always running, never stops ── */
-function startDiceIdle() {
-  const faces = document.querySelectorAll('.dice-face');
-  if (!faces.length) return;
-  let current = 0;
-  const show = (i) => {
-    faces.forEach((f, idx) => {
-      f.style.display = '';       // always keep in DOM
-      f.style.opacity = idx === i ? '1' : '0';
-    });
-  };
-  show(0);
-  _diceIdleInterval = setInterval(() => {
-    current = (current + 1) % faces.length;
-    show(current);
-  }, 500); // 500ms = smooth continuous cycling, never stops
-}
-
-function stopDiceIdle() {
-  clearInterval(_diceIdleInterval);
-  _diceIdleInterval = null;
-}
-
-function resumeDiceIdle() {
-  stopDiceIdle();
-  // small delay so it doesn't immediately restart mid-animation
-  setTimeout(startDiceIdle, 200);
-}
-
-function animateDice() {
-  stopDiceIdle();
-  const faces = document.querySelectorAll('.dice-face');
-  if (!faces.length) return;
-  let current = 0;
-  const show = (i) => {
-    faces.forEach((f, idx) => {
-      f.style.display = '';
-      f.style.opacity = idx === i ? '1' : '0';
-    });
-  };
-  _diceInterval && clearTimeout(_diceInterval);
-
-  const totalFrames = 10;
-  let frame = 0;
-  const scheduleNext = () => {
-    if (frame >= totalFrames) {
-      _diceInterval = null;
-      resumeDiceIdle();
-      return;
-    }
-    const progress = frame / totalFrames;
-    const delay = 50 + progress * progress * 130;
-    current = (current + 1) % faces.length;
-    show(current);
-    frame++;
-    _diceInterval = setTimeout(scheduleNext, delay);
-  };
-  scheduleNext();
-}
-
-function randomPick() {
-  const pool = visible.length ? visible : all;
-  if (!pool.length) return toast('❌ List empty hai', true);
-
-  // Animate dice
-  const btn = document.querySelector('.random-btn');
-  if (btn) {
-    btn.style.pointerEvents = 'none';
-    btn.style.borderColor = 'rgba(245,200,75,0.6)';
-    btn.style.color = 'var(--accent)';
-    btn.classList.add('rolling');
-    animateDice();
-    setTimeout(() => {
-      btn.style.pointerEvents = '';
-      btn.style.borderColor = '';
-      btn.style.color = '';
-      btn.classList.remove('rolling');
-    }, 780);
-  }
-
-  const pick = pool[Math.floor(Math.random() * pool.length)];
-  setTimeout(() => {
-    const row = document.querySelector(`.row[data-id="${CSS.escape(String(pick.id))}"]`);
-    if (row) {
-      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      row.classList.remove('random-pick');
-      void row.offsetWidth;
-      row.classList.add('random-pick');
-      setTimeout(() => row.classList.remove('random-pick'), 2300);
-    }
-    toast(`🎲 ${pick.name}`);
-  }, 720);
 }
 
 /* ── Modal: Add ── */

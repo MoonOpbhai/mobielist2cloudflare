@@ -484,60 +484,6 @@ h1 {
 .sort-opt:hover { background: rgba(255,255,255,0.07); color: #fff; padding-left: 18px; }
 .sort-opt.active { color: var(--accent); background: rgba(245,200,75,0.08); }
 
-/* ── Random / Dice button ── */
-.random-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: #d0d0e8;
-  padding: 0;
-  cursor: pointer;
-  transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.15s;
-  flex-shrink: 0;
-}
-.random-btn:hover {
-  background: var(--surface2);
-  border-color: rgba(245,200,75,0.5);
-  color: var(--accent);
-  transform: rotate(-8deg) scale(1.1);
-}
-.random-btn:active { transform: scale(0.92); }
-
-/* Dice — idle face cycling handled by JS only (no CSS conflict) */
-.random-btn { perspective: none; }
-.random-btn .dice-svg {
-  display: block;
-  transform-origin: center center;
-}
-
-/* Fast spin on click */
-@keyframes diceSpin {
-  0%   { transform: rotate(0deg)   scale(1); }
-  20%  { transform: rotate(90deg)  scale(1.22); }
-  50%  { transform: rotate(200deg) scale(1.18); }
-  80%  { transform: rotate(310deg) scale(1.08); }
-  100% { transform: rotate(360deg) scale(1); }
-}
-.random-btn.rolling .dice-svg {
-  animation: diceSpin 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
-}
-
-@keyframes randomHighlight {
-  0%   { transform: scale(0.97); background: rgba(245,200,75,0.45); box-shadow: 0 0 0 2px rgba(245,200,75,0.75), 0 0 26px rgba(245,200,75,0.4); }
-  14%  { transform: scale(1.018); }
-  28%  { transform: scale(1);     background: rgba(245,200,75,0.30); box-shadow: 0 0 0 2px rgba(245,200,75,0.55), 0 0 18px rgba(245,200,75,0.25); }
-  60%  { background: rgba(245,200,75,0.16); box-shadow: 0 0 0 1px rgba(245,200,75,0.32), 0 0 10px rgba(245,200,75,0.12); }
-  100% { transform: scale(1); background: transparent; box-shadow: none; }
-}
-.row.random-pick {
-  animation: randomHighlight 2.2s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
 /* ── Section chips bar ── */
 .section-bar-wrap {
   position: relative;
@@ -1292,7 +1238,6 @@ main {
   .filter-tabs { width: 100%; }
   .fb { flex: 1; text-align: center; padding: 9px 6px; font-size: 0.7rem; }
   .sort-icon-btn { flex-shrink: 0; }
-  .random-btn { flex-shrink: 0; }
 
   .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
   .stat-card { padding: 11px 6px 9px; }
