@@ -1,9 +1,8 @@
-const CACHE = 'moon-flix-shell-v9';
+const CACHE = 'moon-flix-shell-v11';
 const SHELL = [
-  './',
-  './style.css?v=moon-ui-v33',
-  './app.js?v=moon-ui-v33',
-  './config.js?v=moon-ui-v33',
+  './style.css?v=moon-ui-v34',
+  './app.js?v=moon-ui-v34',
+  './config.js?v=moon-ui-v34',
   './icon-192.png?v=2',
   './icon-512.png?v=2'
 ];
@@ -18,7 +17,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
+      Promise.all(keys.map((k) => caches.delete(k)))
     )
   );
   self.clients.claim();
@@ -30,6 +29,16 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(req.url);
   const isSameOrigin = url.origin === self.location.origin;
+
+  // The HTML page itself (navigation requests) — ALWAYS go to network first,
+  // so deploys show up immediately on a normal refresh. Never cache the page.
+  if (req.mode === 'navigate' || req.url.endsWith('/') || req.url.endsWith('index.html')) {
+    event.respondWith(
+      fetch(req).catch(() => caches.match(req))
+    );
+    return;
+  }
+
   const isShellAsset = isSameOrigin && SHELL.some((s) => req.url.endsWith(s.replace('./', '')));
 
   if (!isSameOrigin || !isShellAsset) {
@@ -37,7 +46,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Shell assets: cache-first → instant on repeat opens. Safe because the
+  // Versioned assets: cache-first → instant on repeat opens. Safe because the
   // ?v= query string changes on every deploy, so a new version is a new URL.
   event.respondWith(
     caches.match(req).then((cached) => {
