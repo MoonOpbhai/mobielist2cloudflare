@@ -407,6 +407,21 @@ function detectSection(name) {
   return sectionFilt !== 'all' ? sectionFilt : 'Movies';
 }
 
+const KNOWN_TAG_COLORS = ['Movies','Series','Anime','Korean','Bengali','Comedy','Hollywood Comedy','Dark Comedy','Best Webseries','Extra Mentions'];
+
+function sectionTagStyle(section) {
+  if (KNOWN_TAG_COLORS.includes(section)) return '';
+  let hash = 0;
+  for (let i = 0; i < section.length; i++) {
+    hash = (hash * 31 + section.charCodeAt(i)) >>> 0;
+  }
+  const hue = hash % 360;
+  const tc = `hsla(${hue}, 85%, 65%, 0.15)`;
+  const tb = `hsla(${hue}, 85%, 65%, 0.28)`;
+  const tf = `hsl(${hue}, 95%, 72%)`;
+  return ` style="--tc:${tc};--tb:${tb};--tf:${tf}"`;
+}
+
 /* ── Render ── */
 function render() {
   const q = (document.getElementById('search').value || '').toLowerCase().trim();
@@ -478,7 +493,7 @@ function render() {
         <span class="num">${num}</span>
         <span class="dot"></span>
         <span class="name">${esc(m.name)}</span>
-        <span class="tag" data-sec="${esc(section)}">${esc(section)}</span>
+        <span class="tag" data-sec="${esc(section)}"${sectionTagStyle(section)}>${esc(section)}</span>
         <div class="links-group">${linksHtml}</div>
         ${adminBtns}
       </div>`;
@@ -497,6 +512,12 @@ function patchLinksIntoRows() {
     if (tagEl && tagEl.dataset.sec !== section) {
       tagEl.dataset.sec = section;
       tagEl.textContent = section;
+      tagEl.removeAttribute('style');
+      const styleAttr = sectionTagStyle(section).trim();
+      if (styleAttr) {
+        const cssText = styleAttr.replace(/^style="/, '').replace(/"$/, '');
+        tagEl.setAttribute('style', cssText);
+      }
     }
 
     const links = allLinks[m.id] || [];
