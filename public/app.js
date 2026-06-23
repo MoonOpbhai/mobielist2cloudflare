@@ -280,6 +280,8 @@ function closeSectionMgr() {
 
 function renderSectionMgrList() {
   const el = document.getElementById('sectionMgrList');
+  const countEl = document.getElementById('sectionMgrCount');
+  if (countEl) countEl.textContent = `(${allSections.length})`;
   el.innerHTML = allSections.map((s, i) => `
     <div class="smgr-row" data-id="${esc(s.id)}">
       <div class="smgr-order-btns">
@@ -556,7 +558,8 @@ function openModal() {
   document.getElementById('saveBtn').textContent     = 'Add to List';
   document.getElementById('newName').value = '';
   document.getElementById('newUrl').value  = '';
-  renderSectionSelect(sectionFilt !== 'all' ? sectionFilt : 'Movies');
+  const lastSection = localStorage.getItem('lastAddSection');
+  renderSectionSelect(lastSection || (sectionFilt !== 'all' ? sectionFilt : 'Movies'));
   document.getElementById('ov').classList.add('open');
   setTimeout(() => document.getElementById('newName').focus(), 60);
 }
@@ -591,6 +594,8 @@ async function saveMovie() {
   const name    = nameInput.value.trim();
   const url     = urlInput.value.trim() || null;
   let   section = sectionInput ? sectionInput.value : 'Movies';
+
+  if (!id && section) localStorage.setItem('lastAddSection', section);
 
   if (!name) {
     nameInput.style.borderColor = 'var(--red)';
