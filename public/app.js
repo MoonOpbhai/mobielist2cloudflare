@@ -306,7 +306,8 @@ function startEditSection(id, currentName) {
     <input class="smgr-name-input" id="smgr-input-${id}"
       value="${esc(currentName)}"
       onkeydown="if(event.key==='Enter')saveEditSection('${id}','${esc(currentName)}');if(event.key==='Escape')renderSectionMgrList();"
-    >`;
+    >
+    <button class="smgr-save-edit" onclick="saveEditSection('${id}','${esc(currentName)}')" title="Save">&#10003;</button>`;
   setTimeout(() => {
     const inp = document.getElementById(`smgr-input-${id}`);
     if (inp) { inp.focus(); inp.select(); }
