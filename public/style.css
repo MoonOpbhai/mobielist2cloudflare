@@ -1365,3 +1365,4 @@ main {
 .smgr-name-input { flex: 1; background: var(--surface); border: 1px solid var(--accent); color: #ffffff; font-family: inherit; font-size: .9rem; padding: 4px 8px; border-radius: 6px; outline: none; min-width: 0; box-shadow: 0 0 0 2px rgba(232,200,64,.15); }
 .smgr-save-edit { background: var(--accent); border: none; color: #000; font-size: .85rem; font-weight: 700; width: 28px; height: 28px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: opacity .15s; }
 .smgr-save-edit:hover { opacity: .85; }
+ 
