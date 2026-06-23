@@ -88,11 +88,10 @@ body::after {
   pointer-events: none;
 }
 
-/* ── Ambient orbs — static, no animation ── */
+/* ── Ambient orbs — static, no animation, no GPU blur (perf-friendly) ── */
 .orb {
   position: fixed;
   border-radius: 50%;
-  filter: blur(90px);
   pointer-events: none;
   z-index: 1;
 }
@@ -100,20 +99,20 @@ body::after {
 .orb-a {
   width: 580px; height: 580px;
   top: -200px; left: -150px;
-  background: radial-gradient(circle, rgba(150,60,220,0.32), transparent 65%);
+  background: radial-gradient(circle, rgba(150,60,220,0.30) 0%, rgba(150,60,220,0.20) 25%, rgba(150,60,220,0.10) 42%, rgba(150,60,220,0.04) 58%, transparent 72%);
   opacity: 0.55;
 }
 .orb-b {
   width: 500px; height: 500px;
   top: -180px; right: -160px;
-  background: radial-gradient(circle, rgba(220,60,140,0.26), transparent 65%);
+  background: radial-gradient(circle, rgba(220,60,140,0.24) 0%, rgba(220,60,140,0.16) 25%, rgba(220,60,140,0.08) 42%, rgba(220,60,140,0.03) 58%, transparent 72%);
   opacity: 0.45;
 }
 .orb-c {
   width: 400px; height: 400px;
   bottom: 10%; left: 50%;
   transform: translateX(-50%);
-  background: radial-gradient(circle, rgba(180,50,255,0.15), transparent 65%);
+  background: radial-gradient(circle, rgba(180,50,255,0.14) 0%, rgba(180,50,255,0.09) 25%, rgba(180,50,255,0.05) 42%, rgba(180,50,255,0.02) 58%, transparent 72%);
   opacity: 0.3;
 }
 
