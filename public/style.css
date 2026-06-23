@@ -1310,10 +1310,23 @@ main {
 }
 .links-btn:hover { background: rgba(232,200,64,.12); }
 
-.modal-wide { max-width: min(620px, 95vw); }
+.modal-wide {
+  max-width: min(620px, 95vw);
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+}
 
 .lmgr-section-label { font-size: .72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #c0c0d8; margin-bottom: 10px; }
-.lmgr-existing { margin-bottom: 20px; }
+.lmgr-existing {
+  margin-bottom: 20px;
+  overflow-y: auto;
+  max-height: 46vh;
+  padding-right: 6px;
+}
+.lmgr-existing::-webkit-scrollbar { width: 6px; }
+.lmgr-existing::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 4px; }
+.lmgr-existing::-webkit-scrollbar-track { background: transparent; }
 .lmgr-add { margin-bottom: 16px; }
 .lmgr-inputs { display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch; }
 .lmgr-inputs input { background: var(--surface2); border: 1px solid var(--border); color: #ffffff; font-family: inherit; font-size: .88rem; padding: 9px 12px; border-radius: 8px; outline: none; min-width: 0; }
