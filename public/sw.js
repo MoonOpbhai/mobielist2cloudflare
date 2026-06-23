@@ -1,8 +1,8 @@
 const CACHE = 'moon-flix-shell-v11';
 const SHELL = [
-  './style.css?v=moon-ui-v35',
-  './app.js?v=moon-ui-v35',
-  './config.js?v=moon-ui-v35',
+  './style.css?v=moon-ui-v37',
+  './app.js?v=moon-ui-v37',
+  './config.js?v=moon-ui-v37',
   './icon-192.png?v=2',
   './icon-512.png?v=2'
 ];
