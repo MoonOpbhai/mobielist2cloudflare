@@ -40,7 +40,7 @@
       <div class="hero">
         <div class="hero-text">
           <p class="eyebrow">✦ Personal Cinema Vault</p>
-          <h1 class="text">🎬MOON Movie Flix</h1>
+          <h1 class="text" style="font-family:monospace;"></h1><span class="typewriter-cursor">|</span>
           <p class="tagline">Movies&nbsp;&bull;&nbsp;Series&nbsp;&bull;&nbsp;Anime&nbsp;&bull;&nbsp;Hidden Picks</p>
         </div>
         <div class="hero-right">
@@ -195,13 +195,13 @@
   <script src="./config.js?v=moon-ui-v41" defer></script>
   <script src="./app.js?v=moon-ui-v41" defer></script>
 
-  <!-- GSAP: title blur-in effect -->
+  <!-- GSAP: title typewriter effect -->
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/TextPlugin.min.js"></script>
   <script>
-    gsap.from(".text", {
-      opacity: 0, filter: "blur(20px)", y: 20,
-      duration: 1, ease: "power2.out"
-    });
+    gsap.registerPlugin(TextPlugin);
+    const tl = gsap.timeline();
+    tl.to(".text", { text: "🎬MOON Movie Flix", duration: 1.2, ease: "none" });
   </script>
 </body>
 </html>
