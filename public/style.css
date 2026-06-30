@@ -1376,7 +1376,7 @@ main {
   display: grid;
   place-items: center;
   overflow: hidden;
-  background-color: #5eb3fd;
+  background-color: #e7e6e6;
   background-image: url("https://www.transparenttextures.com/patterns/concrete-wall.png");
   transition: opacity .6s ease, visibility .6s ease;
 }
