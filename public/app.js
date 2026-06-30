@@ -16,11 +16,17 @@ let adminPassword = sessionStorage.getItem('movie_admin_password') || '';
 let isAdmin       = adminPassword === 'Amonchand111';
 
 /* ── Boot ── */
+const BOOT_LOADER_MIN_MS = 2500; // ⬅ change this number to control how long the ghost loader stays visible (ms)
+const bootStartedAt = Date.now();
 function hideBootLoader() {
   const bl = document.getElementById('bootLoader');
   if (!bl) return;
-  bl.classList.add('is-hidden');
-  setTimeout(() => bl.remove(), 700); // clean up after fade-out transition
+  const elapsed = Date.now() - bootStartedAt;
+  const wait = Math.max(0, BOOT_LOADER_MIN_MS - elapsed);
+  setTimeout(() => {
+    bl.classList.add('is-hidden');
+    setTimeout(() => bl.remove(), 700); // clean up after fade-out transition
+  }, wait);
 }
 function renderSkeleton(count) {
   const wrap = document.getElementById('loading');
