@@ -23,10 +23,24 @@
   <!-- Background image is discovered late when loaded only via CSS — preload it -->
   <link rel="preload" as="image" href="./bg.jpg" fetchpriority="high">
 
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,900;1,9..40,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,900;1,9..40,400&family=Montserrat:wght@900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./style.css?v=moon-ui-v41">
 </head>
 <body>
+
+  <!-- Boot loader: ghost crosses the title while the site loads -->
+  <div id="bootLoader" class="boot-loader">
+    <div class="boot-title">
+      <h1>🎬MOON Movie Flix</h1>
+    </div>
+    <div class="boot-ghost">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+  </div>
 
   <div class="bg-layer" aria-hidden="true"></div>
   <div class="orb orb-a" aria-hidden="true"></div>
