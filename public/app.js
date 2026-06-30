@@ -514,14 +514,6 @@ function render() {
       </div>`;
   }).join('') + `
     <div class="list-end">
-      <div class="marquee">
-        <div class="marquee_blur" aria-hidden="true">
-          <p class="marquee_text">Trying To Do Better!</p>
-        </div>
-        <div class="marquee_clear">
-          <p class="marquee_text">Trying To Do Better!</p>
-        </div>
-      </div>
       <p class="end-tagline">The movies we love and admire are to some extent a function of who we are when we see them.</p>
       <div class="breathe-sign">
         <span class="bs-fast">b</span>rea<span class="bs-slow">t</span>he
