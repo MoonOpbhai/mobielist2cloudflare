@@ -512,7 +512,18 @@ function render() {
         <div class="links-group">${linksHtml}</div>
         ${adminBtns}
       </div>`;
-  }).join('');
+  }).join('') + `
+    <div class="list-end">
+      <div class="marquee">
+        <div class="marquee_blur" aria-hidden="true">
+          <p class="marquee_text">Trying To Do Better!</p>
+        </div>
+        <div class="marquee_clear">
+          <p class="marquee_text">Trying To Do Better!</p>
+        </div>
+      </div>
+      <p class="end-tagline">The movies we love and admire are to some extent a function of who we are when we see them.</p>
+    </div>`;
 }
 
 /* ── Patch links/tags into existing rows (no rebuild, no animation replay) ── */
