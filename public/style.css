@@ -1365,3 +1365,94 @@ main {
 .smgr-name-input { flex: 1; background: var(--surface); border: 1px solid var(--accent); color: #ffffff; font-family: inherit; font-size: .9rem; padding: 4px 8px; border-radius: 6px; outline: none; min-width: 0; box-shadow: 0 0 0 2px rgba(232,200,64,.15); }
 .smgr-save-edit { background: var(--accent); border: none; color: #000; font-size: .85rem; font-weight: 700; width: 28px; height: 28px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: opacity .15s; }
 .smgr-save-edit:hover { opacity: .85; }
+ 
+
+
+/* ── Boot loader: ghost crosses the title while site loads ── */
+.boot-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background-color: #5eb3fd;
+  background-image: url("https://www.transparenttextures.com/patterns/concrete-wall.png");
+  transition: opacity .6s ease, visibility .6s ease;
+}
+.boot-loader.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.boot-loader .boot-title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  padding: 0 16px;
+  text-align: center;
+}
+.boot-loader .boot-title h1 {
+  font-size: clamp(1.8rem, 9vmin, 5.5rem);
+  font-weight: 900;
+  font-family: "Montserrat", sans-serif;
+  color: #000;
+  letter-spacing: 1px;
+  line-height: 1.05;
+}
+.boot-loader .boot-ghost {
+  width: 8vmin;
+  height: 12vmin;
+  background-color: #e7e6e6;
+  background-image: radial-gradient(ellipse at 35% 40%, #000 8%, transparent 0%),
+    radial-gradient(ellipse at 65% 40%, #000 8%, transparent 0%),
+    radial-gradient(ellipse at 50% 60%, #000 8%, transparent 0%);
+  border-radius: 100% / 70% 70% 0% 0%;
+  transform: translateX(30em) rotateZ(-90deg);
+  position: relative;
+  opacity: 0.9;
+  mix-blend-mode: exclusion;
+  animation: bootGhostMove 4s ease-out infinite;
+}
+@keyframes bootGhostMove {
+  0% { transform: translateX(30em) rotateZ(-90deg); }
+  100% { transform: translateX(-35em) rotateZ(-90deg); }
+}
+.boot-loader .boot-ghost div {
+  position: absolute;
+  width: 20%;
+  background-color: #e7e6e6;
+}
+.boot-loader .boot-ghost div:nth-of-type(1) {
+  height: 7vmin;
+  left: 0;
+  bottom: -6vmin;
+  border-radius: 100% / 0% 0% 50% 50%;
+}
+.boot-loader .boot-ghost div:nth-of-type(2),
+.boot-loader .boot-ghost div:nth-of-type(4) {
+  height: 4vmin;
+  left: 20%;
+  bottom: -3vmin;
+  border-radius: 100% / 50% 50% 0% 0%;
+  background-color: transparent;
+}
+.boot-loader .boot-ghost div:nth-of-type(3) {
+  height: 4vmin;
+  left: 40%;
+  bottom: -3.95vmin;
+  border-radius: 100% / 0% 0% 60% 60%;
+  background-color: #e7e6e6;
+}
+.boot-loader .boot-ghost div:nth-of-type(4) {
+  left: 60%;
+}
+.boot-loader .boot-ghost div:nth-of-type(5) {
+  height: 3vmin;
+  left: 80%;
+  bottom: -2.9vmin;
+  border-radius: 100% / 0% 0% 70% 70%;
+  background-color: #e7e6e6;
+}
