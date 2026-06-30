@@ -16,6 +16,12 @@ let adminPassword = sessionStorage.getItem('movie_admin_password') || '';
 let isAdmin       = adminPassword === 'Amonchand111';
 
 /* ── Boot ── */
+function hideBootLoader() {
+  const bl = document.getElementById('bootLoader');
+  if (!bl) return;
+  bl.classList.add('is-hidden');
+  setTimeout(() => bl.remove(), 700); // clean up after fade-out transition
+}
 function renderSkeleton(count) {
   const wrap = document.getElementById('loading');
   if (!wrap) return;
@@ -32,6 +38,7 @@ requestAnimationFrame(() => document.body.classList.add('ready'));
 if (SUPABASE_URL.includes('PASTE_') || SUPABASE_ANON_KEY.includes('PASTE_')) {
   document.getElementById('loading').innerHTML =
     '<span class="state-icon">❌</span><span>Supabase config missing.</span>';
+  hideBootLoader();
 } else {
   db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   init();
@@ -43,6 +50,7 @@ async function init() {
     // Movies first — render the instant they arrive, don't wait for sections/links
     await loadMovies();
     document.getElementById('loading').style.display = 'none';
+    hideBootLoader();
     setupEventListeners();
     render();
 
@@ -57,6 +65,7 @@ async function init() {
   } catch (e) {
     document.getElementById('loading').innerHTML =
       '<span class="state-icon">❌</span><span>Load nahi hua: ' + e.message + '</span>';
+    hideBootLoader();
     console.error(e);
   }
 }
