@@ -516,7 +516,7 @@ function render() {
     <div class="list-end">
       <p class="end-tagline">The movies we love and admire are to some extent a function of who we are when we see them.</p>
       <div class="breathe-sign">
-        <span class="bs-fast">b</span>rea<span class="bs-slow">t</span>he
+        <span class="bs-fast">T</span>rying <span class="bs-fast">T</span>o <span class="bs-fast">D</span>o <span class="bs-slow">B</span>etter!
       </div>
     </div>`;
 }
