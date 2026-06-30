@@ -1518,3 +1518,52 @@ main {
   line-height: 1.6;
   color: rgba(255,255,255,0.55);
 }
+
+/* ── Breathe Neon Sign (list end) ── */
+.breathe-sign {
+  margin: 2.2em auto 0.5em;
+  text-align: center;
+  text-transform: lowercase;
+  font-size: 2.4em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #ffe6ff;
+  text-shadow: 0 0 0.4rem #ffe6ff, 0 0 1rem #ff65bd, 0 0 2rem #ff2483;
+  animation: bs-shine 2s forwards, bs-flicker 4s 2s infinite;
+}
+.breathe-sign .bs-fast,
+.breathe-sign .bs-slow {
+  animation: bs-shine 2s forwards, bs-blink 6s infinite;
+}
+.breathe-sign .bs-slow {
+  animation-delay: 0s, 3s;
+}
+@keyframes bs-shine {
+  0%   { color: #6b1839; text-shadow: none; }
+  100% {
+    color: #ffe6ff;
+    text-shadow: 0 0 0.4rem #ffe6ff, 0 0 1rem #ff65bd, 0 0 2rem #ff2483;
+  }
+}
+@keyframes bs-blink {
+  0%, 92%, 100% {
+    color: #ffe6ff;
+    text-shadow: 0 0 0.4rem #ffe6ff, 0 0 1rem #ff65bd, 0 0 2rem #ff2483;
+  }
+  94%, 96% {
+    color: #ff2483;
+    text-shadow: none;
+  }
+}
+@keyframes bs-flicker {
+  0%, 100% { opacity: 1; }
+  4%  { opacity: 0.9; }
+  8%  { opacity: 0.96; }
+  12% { opacity: 0.9; }
+  50% { opacity: 1; }
+  52% { opacity: 0.5; }
+  54% { opacity: 1; }
+}
+@media (max-width: 600px) {
+  .breathe-sign { font-size: 1.7em; }
+}
