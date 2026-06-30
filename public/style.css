@@ -1465,16 +1465,17 @@ main {
 /* ── List-end marquee banner ── */
 .list-end {
   margin-top: 18px;
-  padding: 2.2em 1em 2em;
+  padding: 1.6em 1em 1.8em;
   border-radius: var(--radius);
   background-color: #000;
+  border: 1px solid rgba(255,255,255,0.07);
   overflow: hidden;
 }
 .list-end .marquee {
   position: relative;
   width: 100%;
   height: 1.4em;
-  font-size: 2.4em;
+  font-size: 2.2em;
   display: grid;
   place-items: center;
   overflow: hidden;
@@ -1510,9 +1511,9 @@ main {
   display: grid;
   place-items: center;
 }
-.list-end .marquee_clear p { color: var(--accent); }
+.list-end .marquee_clear p { color: #fff; }
 .list-end .end-tagline {
-  margin: 1.6em auto 0;
+  margin: 1.4em auto 0;
   max-width: 36ch;
   text-align: center;
   font-size: 14px;
