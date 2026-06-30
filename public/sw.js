@@ -1,8 +1,8 @@
-const CACHE = 'moon-flix-shell-v11';
+const CACHE = 'moon-flix-shell-v12';
 const SHELL = [
-  './style.css?v=moon-ui-v41',
-  './app.js?v=moon-ui-v41',
-  './config.js?v=moon-ui-v41',
+  './style.css?v=moon-ui-v42',
+  './app.js?v=moon-ui-v42',
+  './config.js?v=moon-ui-v42',
   './icon-192.png?v=2',
   './icon-512.png?v=2'
 ];
@@ -59,4 +59,3 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
-
