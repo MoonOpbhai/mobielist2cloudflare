@@ -1399,6 +1399,11 @@ main {
   font-weight: 900;
   font-family: "Montserrat", sans-serif;
   color: #000;
+  -webkit-text-fill-color: #000;
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  filter: none;
   letter-spacing: 1px;
   line-height: 1.05;
 }
