@@ -1461,3 +1461,61 @@ main {
   border-radius: 100% / 0% 0% 70% 70%;
   background-color: #e7e6e6;
 }
+
+/* ── List-end marquee banner ── */
+.list-end {
+  margin-top: 18px;
+  padding: 2.2em 1em 2em;
+  border-radius: var(--radius);
+  background-color: #000;
+  overflow: hidden;
+}
+.list-end .marquee {
+  position: relative;
+  width: 100%;
+  height: 1.4em;
+  font-size: 2.4em;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  font-weight: 800;
+  font-family: "DM Sans", sans-serif;
+}
+.list-end .marquee_text {
+  position: absolute;
+  min-width: 100%;
+  white-space: nowrap;
+  animation: listEndMarquee 16s infinite linear;
+  margin: 0;
+}
+@keyframes listEndMarquee {
+  from { translate: 70%; }
+  to   { translate: -70%; }
+}
+.list-end .marquee_blur {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background-color: #000;
+  background-image:
+    linear-gradient(to right, #000 1rem, transparent 50%),
+    linear-gradient(to left, #000 1rem, transparent 50%);
+  filter: contrast(15);
+}
+.list-end .marquee_blur p { filter: blur(0.07em); color: #fff; }
+.list-end .marquee_clear {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+.list-end .marquee_clear p { color: var(--accent); }
+.list-end .end-tagline {
+  margin: 1.6em auto 0;
+  max-width: 36ch;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.55);
+}
