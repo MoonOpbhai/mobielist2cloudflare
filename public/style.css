@@ -1462,54 +1462,13 @@ main {
   background-color: #e7e6e6;
 }
 
-/* ── List-end marquee banner ── */
+/* ── List-end banner ── */
 .list-end {
   margin-top: 18px;
   padding: 1.6em 1em 1.8em;
   background: transparent;
   overflow: hidden;
 }
-.list-end .marquee {
-  position: relative;
-  width: 100%;
-  height: 1.4em;
-  font-size: 2.2em;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  font-weight: 800;
-  font-family: "DM Sans", sans-serif;
-}
-.list-end .marquee_text {
-  position: absolute;
-  min-width: 100%;
-  white-space: nowrap;
-  animation: listEndMarquee 16s infinite linear;
-  margin: 0;
-}
-@keyframes listEndMarquee {
-  from { translate: 70%; }
-  to   { translate: -70%; }
-}
-.list-end .marquee_blur {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  background-color: black;
-  background-image:
-    linear-gradient(to right, white, 1rem, transparent 50%),
-    linear-gradient(to left, white, 1rem, transparent 50%);
-  filter: contrast(15);
-}
-.list-end .marquee_blur p { filter: blur(0.07em); color: #fff; }
-.list-end .marquee_clear {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-}
-.list-end .marquee_clear p { color: #fff; }
 .list-end .end-tagline {
   margin: 1.4em auto 0;
   max-width: 36ch;
