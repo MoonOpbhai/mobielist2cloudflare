@@ -1480,80 +1480,106 @@ main {
   color: rgba(255,255,255,0.55);
 }
 
-/* ── Breathe Neon Sign (list end) ── */
+/* ── Trying To Do Better Neon Sign (list end) ── */
+@font-face {
+  font-family: Clip;
+  src: url("https://acupoftee.github.io/fonts/Clip.ttf");
+}
 .breathe-sign {
   position: relative;
   display: inline-block;
   text-align: center;
-  font-size: 2.4em;
-  font-weight: bold;
-  letter-spacing: -0.02em;
+  font-family: "Clip", sans-serif;
+  text-transform: uppercase;
+  font-size: 3em;
+  letter-spacing: 2px;
   color: #ffe6ff;
-  text-shadow: 0 0 0.4rem #ffe6ff, 0 0 1rem #ff65bd, 0 0 2rem #ff2483;
-  animation: bs-shine 2s forwards, bs-flicker 4s 2s infinite;
+  text-shadow: 0 0 0.6rem #ffe6ff, 0 0 1.5rem #ff65bd,
+    -0.2rem 0.1rem 1rem #ff65bd, 0.2rem 0.1rem 1rem #ff65bd,
+    0 -0.5rem 2rem #ff2483, 0 0.5rem 3rem #ff2483;
+  animation: bs-shine 2s forwards, bs-flicker 3s infinite;
+  background-image: radial-gradient(ellipse 50% 35% at 50% 50%, #6b1839, transparent);
   margin: 2em auto 4em;
-  padding: 0.3em 0.6em;
-}
-.breathe-sign::before,
-.breathe-sign::after {
-  content: '';
-  padding: .9em .4em;
-  position: absolute;
-  left: 50%;
-  width: 100%;
-  top: 50%;
-  display: block;
-  border: 4px solid transparent;
-  transform: translateX(-50%) translateY(-50%) rotate(0deg);
-  animation: 10s infinite alternate ease-in-out bs-tipsy;
-  pointer-events: none;
-  box-sizing: border-box;
+  padding: 0.4em 0.8em;
 }
 .breathe-sign::before {
-  border-color: #ff65bd #ff65bd transparent transparent;
-  z-index: -1;
+  content: '';
+  position: absolute;
+  inset: -0.5em -0.6em;
+  border: 3px solid #ff65bd;
+  transform: rotate(0deg);
+  animation: 10s infinite alternate ease-in-out bs-tipsy;
+  pointer-events: none;
+  z-index: 0;
 }
-.breathe-sign::after {
-  border-color: transparent transparent #ff2483 #ff2483;
-  box-shadow: 25px 25px 25px rgba(20, 17, 20, 0.8);
+.breathe-sign::after { content: none; }
+.breathe-sign .bs-fast {
+  animation: bs-shine 2s forwards, bs-blink 10s 1s infinite;
+  position: relative; z-index: 1;
 }
-.breathe-sign .bs-fast,
 .breathe-sign .bs-slow {
-  animation: bs-shine 2s forwards, bs-blink 6s infinite;
-}
-.breathe-sign .bs-slow {
-  animation-delay: 0s, 3s;
+  animation: bs-shine 2s forwards, bs-blink 3s 2s infinite;
+  position: relative; z-index: 1;
 }
 @keyframes bs-tipsy {
-  0%   { transform: translateX(-50%) translateY(-50%) rotate(0deg); }
-  100% { transform: translateX(-50%) translateY(-50%) rotate(360deg); }
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 @keyframes bs-shine {
-  0%   { color: #6b1839; text-shadow: none; }
+  0% {
+    color: #6b1839;
+    text-shadow: none;
+  }
   100% {
     color: #ffe6ff;
-    text-shadow: 0 0 0.4rem #ffe6ff, 0 0 1rem #ff65bd, 0 0 2rem #ff2483;
+    text-shadow: 0 0 0.6rem #ffe6ff, 0 0 1.5rem #ff65bd,
+      -0.2rem 0.1rem 1rem #ff65bd, 0.2rem 0.1rem 1rem #ff65bd,
+      0 -0.5rem 2rem #ff2483, 0 0.5rem 3rem #ff2483;
   }
 }
 @keyframes bs-blink {
-  0%, 92%, 100% {
+  0%, 22%, 36%, 75% {
     color: #ffe6ff;
-    text-shadow: 0 0 0.4rem #ffe6ff, 0 0 1rem #ff65bd, 0 0 2rem #ff2483;
+    text-shadow: 0 0 0.6rem #ffe6ff, 0 0 1.5rem #ff65bd,
+      -0.2rem 0.1rem 1rem #ff65bd, 0.2rem 0.1rem 1rem #ff65bd,
+      0 -0.5rem 2rem #ff2483, 0 0.5rem 3rem #ff2483;
   }
-  94%, 96% {
-    color: #ff2483;
-    text-shadow: none;
-  }
+  28%, 33% { color: #ff65bd; text-shadow: none; }
+  82%, 97% { color: #ff2483; text-shadow: none; }
 }
 @keyframes bs-flicker {
-  0%, 100% { opacity: 1; }
+  from { opacity: 1; }
   4%  { opacity: 0.9; }
-  8%  { opacity: 0.96; }
+  6%  { opacity: 0.85; }
+  8%  { opacity: 0.95; }
+  10% { opacity: 0.9; }
+  11% { opacity: 0.922; }
   12% { opacity: 0.9; }
-  50% { opacity: 1; }
-  52% { opacity: 0.5; }
-  54% { opacity: 1; }
+  14% { opacity: 0.95; }
+  16% { opacity: 0.98; }
+  17% { opacity: 0.9; }
+  19% { opacity: 0.93; }
+  20% { opacity: 0.99; }
+  24% { opacity: 1; }
+  26% { opacity: 0.94; }
+  28% { opacity: 0.98; }
+  37% { opacity: 0.93; }
+  38% { opacity: 0.5; }
+  39% { opacity: 0.96; }
+  42% { opacity: 1; }
+  44% { opacity: 0.97; }
+  46% { opacity: 0.94; }
+  56% { opacity: 0.9; }
+  58% { opacity: 0.9; }
+  60% { opacity: 0.99; }
+  68% { opacity: 1; }
+  70% { opacity: 0.9; }
+  72% { opacity: 0.95; }
+  93% { opacity: 0.93; }
+  95% { opacity: 0.95; }
+  97% { opacity: 0.93; }
+  to  { opacity: 1; }
 }
 @media (max-width: 600px) {
-  .breathe-sign { font-size: 1.7em; }
+  .breathe-sign { font-size: 1.8em; }
 }
