@@ -471,7 +471,7 @@ function render() {
   document.getElementById('movieCount').textContent  = all.filter(m => (m.section||'Movies') === 'Movies').length;
   document.getElementById('seriesCount').textContent = all.filter(m => (m.section||'Movies') === 'Series' || (m.section||'').includes('Webseries')).length;
   document.getElementById('animeCount').textContent  = all.filter(m => (m.section||'Movies') === 'Anime').length;
-  document.getElementById('badge').innerHTML         = 'Chand<span class="spin-blossom">🌸</span>'
+  document.getElementById('badge').innerHTML         = 'Chand <span class="spin-blossom">🌸</span>'
 
   const nr  = document.getElementById('noRes');
   const lst = document.getElementById('list');
