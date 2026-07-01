@@ -1465,9 +1465,8 @@ main {
 /* ── List-end banner ── */
 .list-end {
   margin-top: 18px;
-  padding: 1.6em 1em 1.8em;
+  padding: 1.6em 1em 4em;
   background: transparent;
-  overflow: hidden;
 }
 .list-end .end-tagline {
   margin: 1.4em auto 0;
@@ -1488,6 +1487,31 @@ main {
   color: #ffe6ff;
   text-shadow: 0 0 0.4rem #ffe6ff, 0 0 1rem #ff65bd, 0 0 2rem #ff2483;
   animation: bs-shine 2s forwards, bs-flicker 4s 2s infinite;
+  position: relative;
+  display: inline-block;
+  padding: 0.2em 0.5em;
+}
+.breathe-sign::before,
+.breathe-sign::after {
+  content: '';
+  padding: .6em .4em;
+  position: absolute;
+  left: 50%;
+  width: 100%;
+  top: 50%;
+  display: block;
+  border: 4px solid #d9524a;
+  transform: translateX(-50%) translateY(-50%) rotate(0deg);
+  animation: 10s infinite alternate ease-in-out bs-tipsy;
+  pointer-events: none;
+}
+.breathe-sign::before {
+  border-color: #ff65bd #ff65bd transparent transparent;
+  z-index: -1;
+}
+.breathe-sign::after {
+  border-color: transparent transparent #ff2483 #ff2483;
+  box-shadow: 8px 8px 20px rgba(255, 36, 131, 0.3);
 }
 .breathe-sign .bs-fast,
 .breathe-sign .bs-slow {
@@ -1495,6 +1519,10 @@ main {
 }
 .breathe-sign .bs-slow {
   animation-delay: 0s, 3s;
+}
+@keyframes bs-tipsy {
+  0%   { transform: translateX(-50%) translateY(-50%) rotate(0deg); }
+  100% { transform: translateX(-50%) translateY(-50%) rotate(360deg); }
 }
 @keyframes bs-shine {
   0%   { color: #6b1839; text-shadow: none; }
