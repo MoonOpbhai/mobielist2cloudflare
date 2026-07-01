@@ -1488,11 +1488,11 @@ main {
   font-size: 2.4em;
   font-weight: bold;
   letter-spacing: -0.02em;
-  color: #fffbf1;
-  text-shadow: 0 20px 25px #141114, 0 40px 60px #141114;
+  color: #ffe6ff;
+  text-shadow: 0 0 0.4rem #ffe6ff, 0 0 1rem #ff65bd, 0 0 2rem #ff2483;
   animation: bs-shine 2s forwards, bs-flicker 4s 2s infinite;
   margin: 2em auto 4em;
-  padding: 0.2em 0.4em;
+  padding: 0.3em 0.6em;
 }
 .breathe-sign::before,
 .breathe-sign::after {
@@ -1507,6 +1507,7 @@ main {
   transform: translateX(-50%) translateY(-50%) rotate(0deg);
   animation: 10s infinite alternate ease-in-out bs-tipsy;
   pointer-events: none;
+  box-sizing: border-box;
 }
 .breathe-sign::before {
   border-color: #ff65bd #ff65bd transparent transparent;
@@ -1514,6 +1515,7 @@ main {
 }
 .breathe-sign::after {
   border-color: transparent transparent #ff2483 #ff2483;
+  box-shadow: 25px 25px 25px rgba(20, 17, 20, 0.8);
 }
 .breathe-sign .bs-fast,
 .breathe-sign .bs-slow {
@@ -1529,14 +1531,14 @@ main {
 @keyframes bs-shine {
   0%   { color: #6b1839; text-shadow: none; }
   100% {
-    color: #fffbf1;
-    text-shadow: 0 20px 25px #141114, 0 40px 60px #141114;
+    color: #ffe6ff;
+    text-shadow: 0 0 0.4rem #ffe6ff, 0 0 1rem #ff65bd, 0 0 2rem #ff2483;
   }
 }
 @keyframes bs-blink {
   0%, 92%, 100% {
-    color: #fffbf1;
-    text-shadow: 0 20px 25px #141114, 0 40px 60px #141114;
+    color: #ffe6ff;
+    text-shadow: 0 0 0.4rem #ffe6ff, 0 0 1rem #ff65bd, 0 0 2rem #ff2483;
   }
   94%, 96% {
     color: #ff2483;
