@@ -1262,7 +1262,7 @@ main {
   .row:hover { transform: none; }
   .num { min-width: 0; font-size: 0.9rem; }
   .name { font-size: 0.88rem; }
-  .tag { display: none; }
+  .tag { display: inline-flex; }
   .year, .rating { display: none; }
   .thumb { width: 26px; height: 38px; }
   .dl { padding: 4px 9px; font-size: 0.66rem; }
