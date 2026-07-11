@@ -1,4 +1,4 @@
-/* app.js — moon-ui v3 */
+/* app.js — moon-ui v60 (perf pass: no re-run entrance anim, content-visibility rows) */
 
 const cfg = window.APP_CONFIG || {};
 const SUPABASE_URL      = cfg.SUPABASE_URL      || 'PASTE_SUPABASE_URL_HERE';
@@ -14,6 +14,7 @@ let sortOrder     = 'oldest';
 let visible       = [];
 let adminPassword = sessionStorage.getItem('movie_admin_password') || '';
 let isAdmin       = adminPassword === 'Amonchand111';
+let firstRenderDone = false; // entrance animation should only ever play once
 
 /* ── Boot ── */
 const BOOT_LOADER_MIN_MS = 2500; // ⬅ change this number to control how long the ghost loader stays visible (ms)
@@ -485,8 +486,12 @@ function render() {
     const id      = String(m.id);
     const num     = '';
     const section = m.section || 'Movies';
-    // Only stagger first 18 rows — beyond that delay looks laggy
-    const delay   = idx < 18 ? idx * 0.022 : 0;
+    // Entrance animation only plays on the very first render (initial load).
+    // Re-running it on every search/filter/sort/add re-render was forcing
+    // hundreds of rows to animate at once on every keystroke — that was the
+    // main cause of the "everything feels slow" lag on lower-end phones.
+    const animCls = firstRenderDone ? '' : ' row-anim';
+    const delay   = (!firstRenderDone && idx < 18) ? idx * 0.022 : 0;
 
     const links = allLinks[m.id] || [];
     let linksHtml = '';
@@ -504,7 +509,7 @@ function render() {
       <button class="del-btn"   onclick="delMovie('${esc(id)}')"     title="Delete">✕</button>` : '';
 
     return `
-      <div class="row" data-id="${esc(id)}" style="animation-delay:${delay}s">
+      <div class="row${animCls}" data-id="${esc(id)}" style="animation-delay:${delay}s">
         <span class="num">${num}</span>
         <span class="dot"></span>
         <span class="name">${esc(m.name)}</span>
@@ -519,6 +524,8 @@ function render() {
         <span class="bs-fast">T</span>rying <span class="bs-fast">T</span>o <span class="bs-fast">D</span>o <span class="bs-slow">B</span>etter!
       </div>
     </div>`;
+
+  firstRenderDone = true;
 }
 
 /* ── Patch links/tags into existing rows (no rebuild, no animation replay) ── */
