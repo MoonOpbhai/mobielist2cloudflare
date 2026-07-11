@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════
    MOON LIST — Premium Dark Cinema UI
-   style.css?v=moon-ui-v61
+   style.css?v=moon-ui-v62
 ═══════════════════════════════════════════════ */
 
 /* ── Variables ── */
@@ -772,11 +772,7 @@ main {
   transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease;
   position: relative;
   overflow: hidden;
-  /* GPU layer hint + skip paint/layout work for rows scrolled off-screen —
-     this is the single biggest win for scroll smoothness on big lists */
-  contain: layout style paint;
-  content-visibility: auto;
-  contain-intrinsic-size: 0 56px;
+  contain: layout style;
 }
 
 /* Entrance animation — only applied on the very first paint now (v60+),
