@@ -5,13 +5,13 @@
   Cache-Control: no-cache, must-revalidate
 
 /manifest.json
-  Cache-Control: public, max-age=3600
+  Cache-Control: no-cache, must-revalidate
 
 /*.css
-  Cache-Control: public, max-age=300, must-revalidate
+  Cache-Control: no-cache, must-revalidate
 
 /*.js
-  Cache-Control: public, max-age=300, must-revalidate
+  Cache-Control: no-cache, must-revalidate
 
 /*.jpg
   Cache-Control: public, max-age=2592000
