@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════
    MOON LIST — Premium Dark Cinema UI
-   style.css?v=moon-ui-v22
+   style.css?v=moon-ui-v60
 ═══════════════════════════════════════════════ */
 
 /* ── Variables ── */
@@ -72,6 +72,11 @@ body::before {
   background-position: center, center 30%;
   background-repeat: no-repeat, no-repeat;
   pointer-events: none;
+  /* Force this onto its own compositor layer so mobile browsers just
+     re-use the painted layer on scroll instead of repainting it every
+     frame — this was a major cause of scroll jank on lower-end phones. */
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 /* Deep cinematic overlay */
@@ -86,6 +91,8 @@ body::after {
     radial-gradient(ellipse 100% 100% at 50% 100%, rgba(6,6,8,0.78) 0%, rgba(6,6,8,0.35) 45%, transparent 70%),
     linear-gradient(180deg, transparent 0%, transparent 35%, rgba(6,6,8,0.05) 65%, rgba(6,6,8,0.72) 100%);
   pointer-events: none;
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 /* ── Ambient orbs — static, no animation, no GPU blur (perf-friendly) ── */
@@ -770,11 +777,19 @@ main {
   border: 1px solid rgba(255,255,255,0.07);
   /* Smooth transition — no blur on rows for perf */
   transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease;
-  animation: rowIn 0.3s ease both;
   position: relative;
   overflow: hidden;
-  /* GPU layer hint for smooth animation — but only once */
-  contain: layout style;
+  /* GPU layer hint + skip paint/layout work for rows scrolled off-screen —
+     this is the single biggest win for scroll smoothness on big lists */
+  contain: layout style paint;
+  content-visibility: auto;
+  contain-intrinsic-size: 0 56px;
+}
+
+/* Entrance animation — only applied on the very first paint now (v60+),
+   not replayed on every filter/search/add re-render anymore. */
+.row.row-anim {
+  animation: rowIn 0.3s ease both;
 }
 
 .row:hover {
